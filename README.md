@@ -391,3 +391,74 @@ public class UserDaoTest {
 
 객체 생성 방법을 결정하고 오브젝트를 돌려주는 오브젝트.
 
+DaoFactory.java
+
+```java
+package dao;
+
+public class DaoFactory {
+    public UserDao userDao() {
+        
+        ConnectionMaker connectionMaker = new SimpleConnectionMaker();
+        UserDao userDao = new UserDao(connectionMaker);
+        
+        return userDao;
+    }
+}
+```
+
+
+
+UserDaoTest.java
+
+```java
+public static void main(String[] args) throws ClassNotFoundException, SQLException {
+        UserDao dao = new DaoFactory().userDao();
+}
+```
+
+이제 main() 메서드에서 UserDao가 어떻게 생성되는지 신경쓰지 않아도 된다.
+![캡처](readme_images/캡처.PNG)
+
+N사, D사에 UserDao를 공급할 때, UserDao, ConnectionMaker와 함께 
+DaoFactory도 제공한다. UserDao는 변경하지 않고, DaoFactory를 필요에 맞게
+변경해서 쓰면 된다.
+-> DaoFactory를 UserDaoTest에서 분리함으로써 얻는 장점은
+컴포넌트 역할의 오브젝트와 애플리케이션 구조를 결정하는 오브젝트를
+분리한 것이 가장 큰 의미가 있다.
+
+```java
+public class DaoFactory {
+    public UserDao userDao() {
+        return new UserDao(new DConnectionMaker());
+    }
+
+    public AccountDao accountDao() {
+        return new AccountDao(new DConnectionMaker());
+    }
+}
+```
+
+이처럼 Dao가 많아지면 ConnectionMaker의 구현 클래스를 바꿀 때마다
+모든 메서드를 일일이 수정해야 한다. 따라서 이것도 밖으로 빼준다.
+
+```java
+public ConnectionMaker connectionMaker() {
+    return new DConnectionMaker();    
+}
+```
+
+
+# 제어권의 이전을 통한 제어관계 역전
+
+- 제어역전 : 프로그램의 제어 흐름 구조가 뒤바뀌는 것.
+- 일반적인 프로그램의 흐름
+  - main() -> 다음에 사용할 오브젝트 결정. -> 오브젝트 생성
+    -> 오브젝트에 있는 메소드 호출 하는 일련의 과정을 반복.
+  - 즉, 모든 오브젝트가 능동적으로 자신이 사용할 클래스를 결정하고
+    언제, 어떻게 오브젝트를 만들지를 스스로 관장한다. 작업을 사용하는 쪽에서
+    제어하는 구조.
+  - 제어 역전이란 이런 제어 흐름을 거꾸로 뒤집는 것.
+  - 오브젝트는 자기가 사용할 오브젝트를 스스로 선택하지 않고, 생성하지
+    않으며, 자기 자신도 언제 만들어지는지 알지 못한다.
+    -> 모든 제어 권한을 다른 대상에게 위임하기 때문이다.

@@ -1,3 +1,3 @@
 
-7
-pom.xml,4\4\442292b8a7efeabbe4cc176709b833b1792140ec
+@
+spring-study.iml,e\8\e88a6fc27564b2e83636b6489ca959df97383e14

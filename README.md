@@ -268,7 +268,7 @@ UserDao의 코드가 SimpleConnectionMaker 클래스에 종속돼버림. 즉, Us
 
 -> UserDao가 바뀔 수 있는 정보, 즉 DB 커넥션을 가져오는 클래스에 대해 너무 많이 알고 있기 때문. -> 인터페이스를 통해 해결.
 
-![image-20211227012523501](C:\Users\SEC\AppData\Roaming\Typora\typora-user-images\image-20211227012523501.png)
+![image-20211227012523501](readme_images/image-20211227012523501.png)
 
 
 
@@ -304,7 +304,7 @@ UserDao 클래스를 생성할 때, 어떤 ConnectionMaker 타입을 가져와�
 
 즉, 다음과 같은 의존관계를 해결해야함.
 
-![image-20211227013710272](C:\Users\SEC\AppData\Roaming\Typora\typora-user-images\image-20211227013710272.png)
+![image-20211227013710272](readme_images/image-20211227013710272.png)
 
 UserDao의 모든 코드가 ConnectionMaker 인터페이스 외에는 어떤 클래스와도 관계를 가지지 않게 해야함.
 

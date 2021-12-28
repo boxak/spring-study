@@ -466,4 +466,46 @@ public ConnectionMaker connectionMaker() {
 # 오브젝트 팩토리를 이용한 스프링 IoC
 
 - Bean : 스프링이 제어권을 가지고 직접 만들고 관계를 부여하는 오브젝트
-- 
+- 애플리케이션 컨텍스트와 빈 팩토리는 거의 동의어
+- Application Context : 빈 생성, 관계설정 등의 제어작업 총괄
+
+
+### DaoFactory를 사용하는 애플리케이션 컨텍스트
+
+- @Configuration : 스프링이 빈 팩토리를 위한 오브젝트 설정을 담당하는 클래스라고 인식하게
+하는 애노테이션
+- @Bean : 오브젝트를 만들어주는 메소드에 붙여줌.
+
+```java
+@Configuration
+public class DaoFactory {
+    @Bean
+    public UserDao userDao() {
+        return new UserDao(connectionMaker());
+    }
+
+    @Bean
+    public ConnectionMaker connectionMaker() {
+        return new SimpleConnectionMaker();
+    }
+}
+
+public static void main(String[] args) throws ClassNotFoundException, SQLException {
+
+  ApplicationContext context =
+          new AnnotationConfigApplicationContext(DaoFactory.class);
+  UserDao dao = context.getBean("userDao", UserDao.class);
+}
+```
+
+- getBean() : ApplicationContext가 관리하는 오브젝트를 요청.
+- "userDao"는 컨텍스트에 등록된 빈의 이름, @Bean이 붙은 메소드 이름이
+빈의 이름이 된다.
+
+![캡처2](C:\Users\Administrator\IdeaProjects\spring-study\readme_images\캡처2.PNG)
+
+애플리케이션 컨텍스트가 사용되는 방식
+
+
+
+

@@ -506,6 +506,64 @@ public static void main(String[] args) throws ClassNotFoundException, SQLExcepti
 
 애플리케이션 컨텍스트가 사용되는 방식
 
+IoC 원리를 따르는 애플리케이션 컨텍스트를 사용할 때의 장점
+- 클라이언트는 구체적인 팩토리 클래스를 알 필요가 없다.
+  - XML처럼 단순한 방법을 사용해 IoC 설정정보를 만들 수도 있다.
+- 종합 IoC 서비스를 제공해준다.
+- 빈을 검색하는 다양한 방법을 제공.
 
 
+# 싱글톤 레지스트리와 오브젝트 스코프
 
+```java
+DaoFactory factory = new DaoFactory();
+UserDao dao1 = factory.userDao();
+UserDao dao2 = factory.userDao();
+```
+직접 생성한 UserDao
+-> dao1, dao2는 동일하지 않다.
+
+```java
+ApplicationContext = 
+    new AnnotationConfigApplicationContext(DaoFactory.class);
+UserDao dao3 = context.getBean("userDao", UserDao.class);
+UserDao dao4 = context.getBean("userDao", UserDao.class);
+```
+스프링 컨텍스트로부터 가져온 오브젝트
+-> dao3, dao4는 같다.
+
+- 애플리케이션 컨텍스트는 싱글톤 레지스트리이다.
+- 자바가 주로 쓰이는 서버 환경에서는 초당 수십개, 수백개의 오브젝트를
+요청받는 경우가 많기 때문에 서버의 부하를 최소화하기 위함.
+- 서블릿 클래스당 하나의 오브젝트만 만들고, 사용자의 요청을 담당하는 여러 스레드
+에서 하나의 오브젝트를 공유해서 사용.
+
+```java
+ //싱글톤 패턴
+   private UserDao(ConnectionMaker connectionMaker) {
+        this.connectionMaker = connectionMaker;
+    }
+
+    public static synchronized UserDao getInstance() {
+       if (INSTANCE == null) INSTANCE = new UserDao(???);
+       return INSTANCE;
+    }
+```
+
+일반적 싱글톤 패턴 구현의 문제점
+- private 생성자를 갖고 있기 때문에 상속할 수 없다.
+따라서, 객체지향 설계의 장점을 적용하기 어렵다. 스태틱 필드, 메서드를 사용하는 점도 객체지향 설계를
+어렵게 만든다.
+- 싱글톤은 테스트하기 힘들다. 만들어지는 방식이 제한적이어서
+목 오브젝트 등으로 대체하기 힘들다.
+- 서버환경에서는 싱글톤이 하나만 만들어지는 것을 보장하지 못함.
+- 싱글톤 사용은 전역 상태를 만들 수 있어서 바람직하지 못함.
+스태틱 메소드를 이용해 언제든지 싱글톤에 접근할 수 있어서 애플리케이션 어느 곳에서나
+이용될 수 있다.
+
+### 싱글톤 레지스트리
+
+- 자바의 기본적인 싱글톤 패턴은 여러 단점이 있어서
+스프링이 직접 싱글톤 형태의 오브젝트를 만들고 관리한다.
+-> 싱글톤 레지스트리.
+따라서 public 생성자를 가지므로 상속에 제약받지 않음.

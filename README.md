@@ -567,3 +567,35 @@ UserDao dao4 = context.getBean("userDao", UserDao.class);
 스프링이 직접 싱글톤 형태의 오브젝트를 만들고 관리한다.
 -> 싱글톤 레지스트리.
 따라서 public 생성자를 가지므로 상속에 제약받지 않음.
+
+### 싱글톤과 오브젝트의 상태
+
+- 싱글톤이 멀티스레드 환경에서 서비스 형태의 오브젝트로 사용되는 경우 :
+내부에 상태정보를 갖고 있지 않은 stateless 방식으로 생성되어야 함.
+- 다중 스레드들이 동시에 하나의 싱글톤 오브젝트의 인스턴스 변수를 수정하는 것은 매우 위험!
+- 따라서 요청이 들어올 때마다 매번 변수를 선언하는 로컬 변수, 파라미터, 리턴값등을 이용하면 된다.
+
+인스턴스 변수를 사용하도록 수정한 UserDao
+
+```java
+import java.sql.SQLException;
+
+public class UserDao {
+  // 스프링이 관리하는 빈 오브젝트이므로 인스턴스로 사용해도 무방함.
+  // 동일하게 읽기 전용 오브젝트라면 인스턴스 변수로 사용해도 좋다.
+  private ConnectionMaker connectionMaker;
+  //이들은 인스턴스로 사용하면 문제가 생긴다.
+  private Connection c;
+  private User user;
+
+  public User get(String id) throws ClassNotFoundException, SQLException {
+      this.c = connectionMaker.getConnection();
+      this.user = new User();
+      this.user.setId(rs.getString("id"));
+      this.user.setName(rs.getString("name"));
+      this.user.setPassword(rs.getString("password"));
+      
+      return this.user;
+  }
+}
+```

@@ -1,6 +1,7 @@
 package dao;
 
 import domain.User;
+import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
 import java.sql.*;
 
@@ -11,21 +12,16 @@ public class UserDao {
         this.connectionMaker = connectionMaker;
     }
 
-//    //싱글톤 패턴
-//   private UserDao(ConnectionMaker connectionMaker) {
-//        this.connectionMaker = connectionMaker;
-//    }
-//
-//    public static synchronized UserDao getInstance() {
-//       if (INSTANCE == null) INSTANCE = new UserDao(???);
-//       return INSTANCE;
-//    }
+    //의존관계 검색을 이용하는 UserDao 생성자
+    public UserDao() {
+        AnnotationConfigApplicationContext context
+                = new AnnotationConfigApplicationContext(DaoFactory.class);
+        this.connectionMaker = context.getBean("connectionMaker", ConnectionMaker.class);
+    }
 
     public void add(User user) throws ClassNotFoundException, SQLException {
 
-        SimpleConnectionMaker simpleConnectionMaker = new SimpleConnectionMaker();
-
-        Connection c = simpleConnectionMaker.getConnection();
+        Connection c = connectionMaker.getConnection();
 
         PreparedStatement ps = c.prepareStatement(
                 "insert into users(id, name, password) " +
@@ -44,8 +40,7 @@ public class UserDao {
 
     public User get(String id) throws ClassNotFoundException, SQLException {
 
-        SimpleConnectionMaker simpleConnectionMaker = new SimpleConnectionMaker();
-        Connection c = simpleConnectionMaker.getConnection();
+        Connection c = connectionMaker.getConnection();
 
         PreparedStatement ps = c.prepareStatement(
                 "select * from users where id = ?"

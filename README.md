@@ -606,3 +606,165 @@ public class UserDao {
 ### 런타임 의존관계 설정
 
 A가 B에 의존하고 있다 : B가 변하면 A에 영향을 미친다.
+
+인터페이스를 통한 느슨한 의존관계의 예
+![](C:\Users\Administrator\IdeaProjects\spring-study\readme_images\img.png)
+
+위의 경우처럼 UserDao가 ConnectionMaker 인터페이스를 사용하는 경우에는
+어떤 클래스가 인터페이스를 구현하고 있는지에 대해 영향을 덜 받게 된다.
+
+설계 시점에 느슨한 의존 관계를 갖는 경우, 런타임 시 오브젝트가 어떤 클래스로 만든 것인지
+미리 알 수 없다.
+프로그램이 시작되고 UserDao 오브젝트가 만들어지고 런타임 시에 의존관계를 맺는 대상을 
+의존 오브젝트라고 한다.
+즉, 의존관계 주입은 의존 오브젝트와 이것을 사용하는 클라이언트 오브젝트를 런타임 시에
+연결해주는 것을 말한다. 의존관계 주입은 세가지 조건을 충족하는 작업이다.
+
+- 클래스 모델, 코드에는 런타임 시점의 의존관계가 드러나지 않는다. 즉, 인터페이스에만 의존하고 있어야
+한다.
+- 런타임 시점의 의존관계는 컨테이너, 팩토리같은 제3의 존재가 결정
+- 의존관계는 사용할 오브젝트에 대한 레퍼런스를 외부에서 제공해줌으로써 만들어진다.
+
+IoC컨테이너를 사용하는 경우의 의존관계
+
+![](C:\Users\Administrator\IdeaProjects\spring-study\readme_images\캡처3.PNG)
+
+여기서는 DaoFactory가 런타임 시점의 의존관계를 결정하는 DI작업을 주도하는 오브젝트이고,
+IoC 방식의 오브젝트 생성, 초기화, 제공을 수행하는 컨테이너이다.
+-> DI컨테이너
+
+의존관계 주입을 위한 코드
+```java
+public class UserDao {
+    private ConnectionMaker connectionMaker;
+    
+    public UserDao(ConnectionMaker connectionMaker) {
+        this.connectionMaker = connectionMaker;
+    }
+}
+```
+
+![](C:\Users\Administrator\IdeaProjects\spring-study\readme_images\캡처4.PNG)
+
+DI는 자신이 사용할 오브젝트 선택, 생성 제어권을 외부로 넘기고 자신은 수동적으로 주입받은 오브젝트를
+사용한다는 점에서 IoC 개념에 잘 들어맞는다.
+스프링 컨테이너의 IoC는 주로 의존관계 주입, 또는 DI에 초점이 있다.
+
+### 의존관계 검색과 주입
+
+스프링 컨테이너는 자신에게 필요한 의존 오브젝트를 능동적으로 찾는다.
+런타임 시 의존관계 맺을 오브젝트 결정, 생성은 외부 컨테이너에게 맡기지만
+이를 가져올 때는 스스로 컨테이너에게 요청하는 방법을 사용.
+이때, getBean() 메소드를 사용한다.
+
+```java
+//의존관계 검색을 이용하는 UserDao 생성자
+public UserDao() {
+    AnnotationConfigApplicationContext context
+        = new AnnotationConfigApplicationContext(DaoFactory.class);
+    this.connectionMaker = context.getBean("connectionMaker", ConnectionMaker.class);
+}
+```
+
+의존관계 검색 vs 의존관계 주입
+
+의존관계 검색은 주입의 거의 모든 장점을 갖고 있다.
+코드를 보면 의존관계 주입이 더 단순하고 깔끔하다. 의존관계 검색은
+코드 안에 오브젝트 팩토리 클래스나 스프링 API가 나타난다.
+애플리케이션 컴포넌트가 컨테이너와 같이 성격이 다른 오브젝트에 의존하게 되므로
+그다지 바람직하지 못함.
+
+검색의 장점
+
+IoC, DI를 사용해도 애플리케이션 기동 시점에 적어도 한번은 의존관계 검색을 통해
+오브젝트를 가져와야 한다.
+검색과 주입의 중요한 차이점은 검색 방식에서는 검색하는 오브젝트가 스프링의 빈일 필요가
+없다는 점이다. UserDao 안에서 의존관계 검색을 적용하면 UserDao는 굳이 스프링이 관리하는
+빈일 필요가 없다.
+
+반면, 컨테이너가 UserDao에 ConnectionMaker를 주입하려면 UserDao에 대한 생성, 초기화 권한을 갖고 있어야 한다.
+즉, DI를 원하는 오브젝트는 자기 자신이 컨테이너가 관리하는 빈이 되어야 한다.
+
+주의 : DI 동작방식은 외부로터의 주입이지만, 이것만 가지고는 DI방식이라고 할 수 없다.
+주입받는 메소드 파라미터가 특정 클래스 타입으로 고정돼있다면 DI가 일어나지 않는다.
+즉, 다이내믹하게 구현 클래스를 결정해서 제공받을 수 있도록 인터페이스 타입의 파라미터를 통해 이뤄져야 한다.
+
+
+### 의존관계 주입의 응용
+
+DI의 장점 : 코드 상에는 런타임 클래스에 대한 의존관계가 나타나지 않고
+인터페이스를 통한 낮은 결합도의 코드를 만드므로, 다른 책임을 가진 의존관계에 있는
+대상이 바뀌거나 변경되어도 자신은 영향을 받지 않고, 변경을 통한 확장이 자유롭다
+
+
+##### 기능 구현의 교환
+
+가령, 서버가 사용하는 DB를 예로 들어보자.
+개발 단계에서는 서버가 사용하는 DB를 사용해선 안된다. 그러므로
+개발용 로컬 DB와 연결하는 ConnectionMaker, 실제 서버 DB와 연결하는 ConnectionMaker가
+따로 필요할 것이다.
+
+코드 상에 LocalDBConnectionMaker, ProductionDBConnectionMaker 등이 들어가있다면
+개발하거나 혹은 서버에 배포할 때 모든 관련 코드를 수정해줘야만 한다.
+
+DI 방식을 사용할 때는 다음과 같이 하면 된다.
+
+```java
+@Bean
+public ConnectionMaker connectionMaker() {
+    //로컬 DB
+    return new LocalDBConnectionMaker();
+    
+    //실제 DB
+    return new ProductionDBConnectionMaker();    
+}
+```
+
+
+##### 부가기능 추가
+
+만일, DAO가 DB를 얼마나 많이 연결해서 사용하는지 파악하고 싶다고 하자.
+DAO getConnectionMaker()를 호출하는 부분에 카운트 코드를 넣으면 엄청난 낭비이고,
+DAO를 수정하게 되므로 원래 스프링 취지와도 맞지 않다.
+
+부가기능을 위해 새로운 카운팅 오브젝트를 추가하면 된다.
+
+```java
+public class CountingConnectionMaker implements ConnectionMaker{
+    int counter = 0;
+    private ConnectionMaker realConnectionMaker;
+
+    public CountingConnectionMaker(ConnectionMaker connectionMaker) {
+        this.realConnectionMaker = connectionMaker;
+    }
+
+    public Connection getConnection() throws ClassNotFoundException, SQLException {
+        this.counter++;
+        return realConnectionMaker.getConnection();
+    }
+
+    public int getCounter() {
+        return this.counter;
+    }
+}
+```
+
+```java
+@Configuration
+public class CountingDaoFactory {
+    @Bean
+    public UserDao userDao() {
+        return new UserDao(connectionMaker());
+    }
+
+    @Bean
+    public ConnectionMaker connectionMaker() {
+        return new CountingConnectionMaker(realConnectionMaker());
+    }
+
+    @Bean
+    public ConnectionMaker realConnectionMaker() {
+        return new SimpleConnectionMaker();
+    }
+}
+```

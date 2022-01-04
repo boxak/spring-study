@@ -19,6 +19,11 @@ public class UserDao {
         this.connectionMaker = context.getBean("connectionMaker", ConnectionMaker.class);
     }
 
+    //setter 방식을 이용한 의존관계 주입
+    public void setConnectionMaker(ConnectionMaker connectionMaker) {
+        this.connectionMaker = connectionMaker;
+    }
+
     public void add(User user) throws ClassNotFoundException, SQLException {
 
         Connection c = connectionMaker.getConnection();

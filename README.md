@@ -768,3 +768,48 @@ public class CountingDaoFactory {
     }
 }
 ```
+
+
+### 메소드를 이용한 의존관계 주입
+
+의존관계 주입 시 반드시 생성자를 사용해야 하는 것은 아니다.
+
+- 수정자 메소드(setter)를 이용한 주입
+- 일반 메소드를 이용한 주입
+
+
+# XML을 이용한 설정
+
+DaoFactory를 이용한 DI 작업도 DI 구성이 바뀔 때마다 자바 코드를 수정하고
+클래스를 다시 컴파일해야 하는 작업이 존재한다.
+그래서 스프링은 XML을 이용한 DI도 지원한다.
+
+XML은 단순 텍스트 파일이기 때문에 다루기 쉽다.
+오브젝트의 관계가 바뀌는 경우에도 빠르게 변경사항을 반영할 수 있다.
+스키마나 dtd를 이용해 정해진 포맷을 따라 작성됐는지 쉽게 확인 가능하다.
+
+
+
+### XML 설정
+
+DI 정보가 담긴 XML파일은 <beans>를 루트 엘리먼트로 사용한다.
+<beans>안에는 여러 개의 <bean>을 정의할 수 있다.
+
+하나의 @Bean 메소드를 통해 얻을 수 있는 빈의 DI 정보는 다음 세 가지이다.
+- 빈의 이름
+- 빈의 클래스
+- 빈의 의존 오브젝트
+
+즉, @Bean -> <bean>
+빈 메소드 이름 : connectionMaker() -> id="connectionMaker"
+빈 구현 클래스 DConnectionMaker() -> class="DConnectionMaker"
+
+
+
+##### userDao() 전환
+
+userDao는 connectionMaker에 의존하는 빈이다.
+따라서, setConnectionMaker는 프로퍼티가 된다.
+<property> 태그를 사용하고, name과 ref 두개의 어트리뷰트를 갖는다.
+name은 프로퍼티의 이름, ref는 수정자 메소드를 통해 주입해줄 오브젝트의 빈 이름이다.
+이 때, 주입해줄 오브젝트도 빈이다.

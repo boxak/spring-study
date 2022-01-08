@@ -8,14 +8,14 @@ public class DaoFactory {
 //    @Bean
 //    public UserDao userDao() {
 //        return new UserDao(connectionMaker());
-//    } ////
+//    }
 
     @Bean
     public UserDao userDao() {
         UserDao userDao = new UserDao();
         userDao.setConnectionMaker(connectionMaker());
 
-        return userDao;;;
+        return userDao;
     }
 
     @Bean

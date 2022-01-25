@@ -9,17 +9,11 @@ import java.sql.SQLException;
 
 public class UserDaoTest {
     public static void main(String[] args) throws ClassNotFoundException, SQLException {
-//        UserDao dao = new DaoFactory().userDao();
-//        UserDao dao2 = new DaoFactory().userDao();
-
-//        ApplicationContext context =
-//                new AnnotationConfigApplicationContext(CountingDaoFactory.class);
 
         ApplicationContext context =
-                new GenericXmlApplicationContext("applicationContext.xml");
-        UserDao dao = context.getBean("userDao", UserDao.class);
+                new AnnotationConfigApplicationContext(DaoFactory.class);
 
-        //UserDao dao = new UserDao();
+        UserDao dao = context.getBean("userDao", UserDao.class);
 
         User user = new User();
         user.setId("whiteship");
@@ -35,9 +29,5 @@ public class UserDaoTest {
         System.out.println(user2.getPassword());
 
         System.out.println(user2.getId() + " 조회 성공");
-
-        CountingConnectionMaker ccm = context.getBean("connectionMaker",
-                CountingConnectionMaker.class);
-        System.out.println("Connection counter : " + ccm.getCounter());
     }
 }

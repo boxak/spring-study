@@ -3,30 +3,19 @@ package dao;
 import domain.User;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
+import javax.sql.DataSource;
 import java.sql.*;
 
 public class UserDao {
-    private ConnectionMaker connectionMaker;
+    private DataSource dataSource;
 
-    public UserDao(ConnectionMaker connectionMaker) {
-        this.connectionMaker = connectionMaker;
-    }
-
-    //의존관계 검색을 이용하는 UserDao 생성자
-    public UserDao() {
-        AnnotationConfigApplicationContext context
-                = new AnnotationConfigApplicationContext(DaoFactory.class);
-        this.connectionMaker = context.getBean("connectionMaker", ConnectionMaker.class);
-    }
-
-    //setter 방식을 이용한 의존관계 주입
-    public void setConnectionMaker(ConnectionMaker connectionMaker) {
-        this.connectionMaker = connectionMaker;
+    public void setDataSource(DataSource dataSource) {
+        this.dataSource = dataSource;
     }
 
     public void add(User user) throws ClassNotFoundException, SQLException {
 
-        Connection c = connectionMaker.getConnection();
+        Connection c = dataSource.getConnection();
 
         PreparedStatement ps = c.prepareStatement(
                 "insert into users(id, name, password) " +
@@ -45,7 +34,7 @@ public class UserDao {
 
     public User get(String id) throws ClassNotFoundException, SQLException {
 
-        Connection c = connectionMaker.getConnection();
+        Connection c = dataSource.getConnection();
 
         PreparedStatement ps = c.prepareStatement(
                 "select * from users where id = ?"

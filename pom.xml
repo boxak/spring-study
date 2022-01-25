@@ -12,6 +12,8 @@
     <properties>
         <spring.framework.version>5.2.3.RELEASE</spring.framework.version>
         <java.version>8</java.version>
+        <project.build.sourceEncoding>utf-8</project.build.sourceEncoding>
+        <project.reporting.outputEncoding>utf-8</project.reporting.outputEncoding>
     </properties>
 
     <dependencies>
@@ -25,6 +27,12 @@
             <groupId>mysql</groupId>
             <artifactId>mysql-connector-java</artifactId>
             <version>8.0.17</version>
+        </dependency>
+        <!-- https://mvnrepository.com/artifact/org.springframework/spring-jdbc -->
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-jdbc</artifactId>
+            <version>5.2.3.RELEASE</version>
         </dependency>
 
     </dependencies>

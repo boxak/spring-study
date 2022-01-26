@@ -1,5 +1,7 @@
-package dao;
+package test;
 
+import dao.DaoFactory;
+import dao.UserDao;
 import domain.User;
 import org.assertj.core.api.Assertions;
 import org.junit.Before;

@@ -20,13 +20,13 @@ public class UserDaoTest {
     @Autowired
     private ApplicationContext context;
 
+    @Autowired
     private UserDao dao;
 
     @Before
     public void setUp() {
         System.out.println(this.context);
         System.out.println(this);
-        this.dao = context.getBean("userDao", UserDao.class);
     }
 
     @Test

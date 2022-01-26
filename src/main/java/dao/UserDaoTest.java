@@ -17,7 +17,7 @@ import java.sql.SQLException;
 
 @DirtiesContext
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations = "/applicationContext.xml")
+@ContextConfiguration(locations = "/test-applicationContext.xml")
 public class UserDaoTest {
 
     @Autowired
@@ -25,13 +25,7 @@ public class UserDaoTest {
 
     @Before
     public void setUp() {
-        DataSource dataSource = new SingleConnectionDataSource(
-                "jdbc:mysql://localhost/test_db?serverTimezone=UTC",
-                "root",
-                "1234",
-                true
-        );
-        dao.setDataSource(dataSource);
+
     }
 
     @Test

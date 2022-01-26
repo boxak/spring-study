@@ -6,27 +6,32 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationContext;
 import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.jdbc.datasource.SingleConnectionDataSource;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+import javax.sql.DataSource;
 import java.sql.SQLException;
 
+@DirtiesContext
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = "/applicationContext.xml")
 public class UserDaoTest {
-
-    @Autowired
-    private ApplicationContext context;
 
     @Autowired
     private UserDao dao;
 
     @Before
     public void setUp() {
-        System.out.println(this.context);
-        System.out.println(this);
+        DataSource dataSource = new SingleConnectionDataSource(
+                "jdbc:mysql://localhost/test_db?serverTimezone=UTC",
+                "root",
+                "1234",
+                true
+        );
+        dao.setDataSource(dataSource);
     }
 
     @Test

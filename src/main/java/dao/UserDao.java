@@ -1,7 +1,9 @@
 package dao;
 
+import dao.strategy.AddStatement;
+import dao.strategy.DeleteAllStatement;
+import dao.strategy.StatementStrategy;
 import domain.User;
-import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.dao.EmptyResultDataAccessException;
 
 import javax.sql.DataSource;
@@ -15,22 +17,8 @@ public class UserDao {
     }
 
     public void add(User user) throws SQLException {
-
-        Connection c = dataSource.getConnection();
-
-        PreparedStatement ps = c.prepareStatement(
-                "insert into users(id, name, password) " +
-                        "values(?,?,?)"
-        );
-
-        ps.setString(1, user.getId());
-        ps.setString(2, user.getName());
-        ps.setString(3, user.getPassword());
-
-        ps.executeUpdate();
-
-        ps.close();
-        c.close();
+        StatementStrategy st = new AddStatement(user);
+        jdbcContextWithStatementStrategy(st);
     }
 
     public User get(String id) throws SQLException {

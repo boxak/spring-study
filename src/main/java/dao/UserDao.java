@@ -70,6 +70,7 @@ public class UserDao {
         try {
             c = dataSource.getConnection();
 
+            // 클라이언트 코드, 나머지는 컨텍스트 코드에 해당.
             StatementStrategy strategy = new DeleteAllStatement();
             ps = strategy.makePreparedStatement(c);
 

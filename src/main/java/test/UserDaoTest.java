@@ -1,10 +1,8 @@
 package test;
 
-import dao.DaoFactory;
 import dao.UserDao;
 import domain.User;
 import org.assertj.core.api.Assertions;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;

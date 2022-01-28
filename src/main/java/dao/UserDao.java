@@ -16,6 +16,18 @@ public class UserDao {
         this.jdbcTemplate = new JdbcTemplate(dataSource);
     }
 
+    private RowMapper<User> userMapper = new RowMapper<User>() {
+        @Override
+        public User mapRow(ResultSet rs, int rowNum) throws SQLException {
+            User user = new User();
+            user.setId(rs.getString("id"));
+            user.setName(rs.getString("name"));
+            user.setPassword(rs.getString("password"));
+
+            return user;
+        }
+    };
+
     public void add(User user) throws SQLException {
         this.jdbcTemplate.update(
                 "insert into users (id, name, password)" +
@@ -27,31 +39,12 @@ public class UserDao {
     }
 
     public User get(String id) throws SQLException {
-        return this.jdbcTemplate.queryForObject("select * from users where id=?", new Object[]{id}, new RowMapper<User>() {
-            @Override
-            public User mapRow(ResultSet rs, int rowNum) throws SQLException {
-                User user = new User();
-                user.setId(rs.getString("id"));
-                user.setName(rs.getString("name"));
-                user.setPassword(rs.getString("password"));
-
-                return user;
-            }
-        });
+        return this.jdbcTemplate.queryForObject("select * from users where id=?",
+                new Object[]{id}, userMapper);
     }
 
     public List<User> getAll() throws SQLException {
-        return this.jdbcTemplate.query("select * from users order by id", new RowMapper<User>() {
-            @Override
-            public User mapRow(ResultSet rs, int rowNum) throws SQLException {
-                User user = new User();
-                user.setId(rs.getString("id"));
-                user.setName(rs.getString("name"));
-                user.setPassword(rs.getString("password"));
-
-                return user;
-            }
-        });
+        return this.jdbcTemplate.query("select * from users order by id", userMapper);
     }
 
     public void deleteAll() throws SQLException {

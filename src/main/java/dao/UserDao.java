@@ -23,13 +23,11 @@ public class UserDao {
 
     public void add(User user) throws SQLException {
         String query = "insert into users(id, name, password) " +
-                "values('%s', '%s', '%s')";
-        query = String.format(query,
+                "values(?, ?, ?)";
+        this.jdbcContext.executeSql(query,
                 user.getId(),
                 user.getName(),
                 user.getPassword());
-
-        this.jdbcContext.executeSql(query);
     }
 
     public User get(String id) throws SQLException {

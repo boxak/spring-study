@@ -1,5 +1,5 @@
 package template.callback;
 
-public interface LineCallback {
-    Integer workWithLine(String line, Integer value);
+public interface LineCallback<T> {
+    T workWithLine(String line, T value);
 }

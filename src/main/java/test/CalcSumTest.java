@@ -28,4 +28,10 @@ public class CalcSumTest {
         Assertions.assertThat(calculator.calcMultiply(this.numFilepath))
                 .isEqualTo(24);
     }
+
+    @Test
+    public void concatenateStrings() throws IOException {
+        Assertions.assertThat(calculator.concatenate(this.numFilepath))
+                .isEqualTo("1234");
+    }
 }

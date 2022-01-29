@@ -3,9 +3,11 @@ package test;
 import dao.UserDao;
 import domain.User;
 import org.assertj.core.api.Assertions;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataAccessException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
@@ -20,9 +22,13 @@ public class UserDaoTest {
     @Autowired
     private UserDao dao;
 
+    @Before
+    public void setUp() {
+        dao.deleteAll();
+    }
+
     @Test
     public void addAndGet() throws SQLException {
-        dao.deleteAll();
         Assertions.assertThat(dao.getCount()).isEqualTo(0);
 
         User user1 = new User("gyumee","박성철","springno1");
@@ -49,7 +55,6 @@ public class UserDaoTest {
         User user2 = new User("leegw700","이길원","springno2");
         User user3 = new User("bumjin","박범진","springno3");
 
-        dao.deleteAll();
         Assertions.assertThat(dao.getCount()).isEqualTo(0);
 
         dao.add(user1);
@@ -64,16 +69,12 @@ public class UserDaoTest {
 
     @Test(expected = EmptyResultDataAccessException.class)
     public void getUserFailure() throws SQLException {
-        dao.deleteAll();
         Assertions.assertThat(dao.getCount()).isEqualTo(0);
-
         dao.get("unknown_id");
     }
 
     @Test
     public void getAllTest() throws SQLException {
-        dao.deleteAll();
-
         List<User> users0 = dao.getAll();
         Assertions.assertThat(users0.size()).isEqualTo(0);
 
@@ -100,6 +101,15 @@ public class UserDaoTest {
         checkSameUser(user2, users3.get(2));
         checkSameUser(user3, users3.get(0));
     }
+
+    @Test(expected = DataAccessException.class)
+    public void duplicateKey() {
+        User user1 = new User("gyumee","박성철","springno1");
+
+        dao.add(user1);
+        dao.add(user1);
+    }
+
 
     private void checkSameUser(User user1, User user2) {
         Assertions.assertThat(user1.getId()).isEqualTo(user2.getId());

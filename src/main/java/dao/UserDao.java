@@ -42,7 +42,7 @@ public class UserDao {
         return this.jdbcTemplate.queryForObject("select * from users where id=?",
                 new Object[]{id}, userMapper);
     }
-//
+
     public List<User> getAll() throws SQLException {
         return this.jdbcTemplate.query("select * from users order by id", userMapper);
     }

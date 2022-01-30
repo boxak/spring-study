@@ -1,6 +1,7 @@
 package test;
 
 import dao.UserDao;
+import domain.Level;
 import domain.User;
 import org.assertj.core.api.Assertions;
 import org.junit.Before;
@@ -29,17 +30,21 @@ public class UserDaoTest {
     @Autowired
     private DataSource dataSource;
 
+    private User user1;
+    private User user2;
+    private User user3;
+
     @Before
     public void setUp() {
         dao.deleteAll();
+        this.user1 = new User("gyumee", "박성철", "springno1", Level.BASIC, 1, 0);
+        this.user2 = new User("leegw700", "이길원", "springno2", Level.SILVER, 55, 10);
+        this.user3 = new User("bumjin", "박범진", "springno3", Level.GOLD, 100, 40);
     }
 
     @Test
     public void addAndGet() throws SQLException {
         Assertions.assertThat(dao.getCount()).isEqualTo(0);
-
-        User user1 = new User("gyumee","박성철","springno1");
-        User user2 = new User("leegw700","이길원","springno2");
 
         dao.add(user1);
         dao.add(user2);
@@ -47,20 +52,14 @@ public class UserDaoTest {
         Assertions.assertThat(dao.getCount()).isEqualTo(2);
 
         User userget1 = dao.get(user1.getId());
-        Assertions.assertThat(userget1.getName()).isEqualTo(user1.getName());
-        Assertions.assertThat(userget1.getPassword()).isEqualTo(user1.getPassword());
+        checkSameUser(userget1, user1);
 
         User userget2 = dao.get(user2.getId());
-        Assertions.assertThat(userget2.getName()).isEqualTo(user2.getName());
-        Assertions.assertThat(userget2.getPassword()).isEqualTo(user2.getPassword());
+        checkSameUser(userget2, user2);
     }
 
     @Test
     public void count() throws SQLException {
-
-        User user1 = new User("gyumee","박성철","springno1");
-        User user2 = new User("leegw700","이길원","springno2");
-        User user3 = new User("bumjin","박범진","springno3");
 
         Assertions.assertThat(dao.getCount()).isEqualTo(0);
 
@@ -85,10 +84,6 @@ public class UserDaoTest {
         List<User> users0 = dao.getAll();
         Assertions.assertThat(users0.size()).isEqualTo(0);
 
-        User user1 = new User("gyumee","박성철","springno1");
-        User user2 = new User("leegw700","이길원","springno2");
-        User user3 = new User("bumjin","박범진","springno3");
-
         dao.add(user1);
         List<User> users1 = dao.getAll();
         Assertions.assertThat(users1.size()).isEqualTo(1);
@@ -111,15 +106,12 @@ public class UserDaoTest {
 
     @Test(expected = DuplicateKeyException.class)
     public void duplicateKey() {
-        User user1 = new User("gyumee","박성철","springno1");
-
         dao.add(user1);
         dao.add(user1);
     }
 
     @Test
     public void sqlExceptionTranslate() {
-        User user1 = new User("gyumee","박성철","springno1");
         try {
             dao.add(user1);
             dao.add(user1);
@@ -137,5 +129,8 @@ public class UserDaoTest {
         Assertions.assertThat(user1.getId()).isEqualTo(user2.getId());
         Assertions.assertThat(user1.getName()).isEqualTo(user2.getName());
         Assertions.assertThat(user1.getPassword()).isEqualTo(user2.getPassword());
+        Assertions.assertThat(user1.getLevel()).isEqualTo(user2.getLevel());
+        Assertions.assertThat(user1.getLogin()).isEqualTo(user2.getLogin());
+        Assertions.assertThat(user1.getRecommend()).isEqualTo(user2.getRecommend());
     }
 }

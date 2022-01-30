@@ -124,6 +124,26 @@ public class UserDaoTest {
         }
     }
 
+    @Test
+    public void update() {
+        dao.add(user1);
+        dao.add(user2);
+
+        user1.setName("오민규");
+        user1.setPassword("springno6");
+        user1.setLevel(Level.GOLD);
+        user1.setLogin(1000);
+        user1.setRecommend(999);
+        dao.update(user1);
+
+        User user1update = dao.get(user1.getId());
+        User user2update = dao.get(user2.getId());
+        checkSameUser(user1, user1update);
+
+        Assertions.assertThat(user1.getName())
+                .isNotEqualTo(user2update.getName());
+    }
+
 
     private void checkSameUser(User user1, User user2) {
         Assertions.assertThat(user1.getId()).isEqualTo(user2.getId());

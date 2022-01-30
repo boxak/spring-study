@@ -139,9 +139,7 @@ public class UserDaoTest {
         User user1update = dao.get(user1.getId());
         User user2update = dao.get(user2.getId());
         checkSameUser(user1, user1update);
-
-        Assertions.assertThat(user1.getName())
-                .isNotEqualTo(user2update.getName());
+        checkSameUser(user2, user2update);
     }
 
 

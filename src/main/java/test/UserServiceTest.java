@@ -27,6 +27,8 @@ public class UserServiceTest {
 
     private List<User> users;
 
+    private User user;
+
     @Before
     public void setUp() {
         users = Arrays.asList(
@@ -36,6 +38,8 @@ public class UserServiceTest {
                 new User("madnite1", "이상호", "p4", Level.SILVER, 60, 30),
                 new User("green", "오민규", "p5", Level.GOLD, 100, 100)
         );
+
+        user = new User();
     }
 
     @Test
@@ -77,6 +81,27 @@ public class UserServiceTest {
 
         checkLevel(userWithLevelRead, userWithLevel.getLevel());
         checkLevel(userWithoutLevelRead, userWithoutLevel.getLevel());
+    }
+
+    @Test
+    public void upgradeLevel() {
+        Level[] levels = Level.values();
+        for (Level level : levels) {
+            if (level.nextLevel() == null) continue;
+            user.setLevel(level);
+            user.upgradeLevel();
+            Assertions.assertThat(user.getLevel()).isEqualTo(level.nextLevel());
+        }
+    }
+
+    @Test(expected = IllegalStateException.class)
+    public void cannotUpgradeLevel() {
+        Level[] levels = Level.values();
+        for (Level level : levels) {
+            if (level.nextLevel() != null) continue;
+            user.setLevel(level);
+            user.upgradeLevel();
+        }
     }
 
     private void checkLevel(User user, Level expectedLevel) {

@@ -9,12 +9,11 @@
         <property name="username" value="root" />
         <property name="password" value="1234" />
     </bean>
-    <bean id="userDao" class="dao.UserDaoJdbc">
-        <property name="dataSource" ref="dataSource" />
-    </bean>
+    <bean id="userDao" class="dao.UserDaoJdbc" />
     <bean id="UserLevelUpgradePolicy" class="service.UserLevelUpgradePolicyImpl" />
     <bean id="userService" class="service.UserService">
         <property name="userDao" ref="userDao" />
         <property name="upgradePolicy" ref="UserLevelUpgradePolicy" />
+        <property name="dataSource" ref="dataSource" />
     </bean>
 </beans>

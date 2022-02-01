@@ -29,11 +29,19 @@ public class UserService {
     public void upgradeLevels() {
         List<User> users = userDao.getAll();
         for (User user : users) {
-            if (this.upgradePolicy.canUpgradeLevel(user)) {
-                this.upgradePolicy.upgradeLevel(user);
-                userDao.update(user);
+            if (canUpgradeLevel(user)) {
+                upgradeLevel(user);
             }
         }
+    }
+
+    private boolean canUpgradeLevel(User user) {
+        return upgradePolicy.canUpgradeLevel(user);
+    }
+
+    protected void upgradeLevel(User user) {
+        upgradePolicy.upgradeLevel(user);
+        userDao.update(user);
     }
 
     public void add(User user) {

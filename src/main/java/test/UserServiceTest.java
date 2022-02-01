@@ -1,6 +1,6 @@
 package test;
 
-import dao.UserDao;
+import dao.UserDaoJdbc;
 import domain.Level;
 import domain.User;
 import org.assertj.core.api.Assertions;
@@ -27,7 +27,7 @@ public class UserServiceTest {
     private UserService userService;
 
     @Autowired
-    private UserDao userDao;
+    private UserDaoJdbc userDao;
 
     private List<User> users;
 
@@ -72,7 +72,7 @@ public class UserServiceTest {
     }
 
     @Test
-    public void upgradeLevels() {
+    public void upgradeLevels() throws Exception {
         userDao.deleteAll();
 
         for (User user : users) {
@@ -129,10 +129,11 @@ public class UserServiceTest {
     }
 
     @Test
-    public void upgradeAllOrNothing() {
+    public void upgradeAllOrNothing() throws Exception {
         UserService testUserService = new TestUserService(users.get(3).getId());
         testUserService.setUserDao(this.userDao);
         testUserService.setUpgradePolicy(new UserLevelUpgradePolicyImpl());
+        testUserService.setDataSource(this.userDao.getDataSource());
 
         userDao.deleteAll();
 

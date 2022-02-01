@@ -5,12 +5,23 @@ import domain.User;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 
+import javax.sql.DataSource;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
 
 public class UserDaoJdbc implements UserDao {
     private JdbcTemplate jdbcTemplate;
+    private DataSource dataSource;
+
+    public void setDataSource(DataSource dataSource) {
+        this.jdbcTemplate = new JdbcTemplate(dataSource);
+        this.dataSource = dataSource;
+    }
+
+    public DataSource getDataSource() {
+        return this.dataSource;
+    }
 
     private RowMapper<User> userMapper = new RowMapper<User>() {
         @Override
@@ -75,5 +86,11 @@ public class UserDaoJdbc implements UserDao {
                 user.getRecommend(),
                 user.getId()
         );
+
+        try {
+            System.out.println("dao connection : " + this.jdbcTemplate.getDataSource().getConnection());
+        } catch (Exception e) {
+
+        }
     }
 }

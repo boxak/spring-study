@@ -14,6 +14,7 @@ import org.springframework.mail.SimpleMailMessage;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.PlatformTransactionManager;
+import service.DummyMailSender;
 import service.UserLevelUpgradePolicyImpl;
 import service.UserService;
 
@@ -82,7 +83,7 @@ public class UserServiceTest {
     }
 
     @Test
-    public void upgradeLevels() throws Exception {
+    public void upgradeLevels() {
         userDao.deleteAll();
 
         for (User user : users) {
@@ -96,7 +97,7 @@ public class UserServiceTest {
         checkLevelUpgraded(users.get(2), false);
         checkLevelUpgraded(users.get(3), true);
         checkLevelUpgraded(users.get(4), false);
-
+        Assertions.assertThat(((DummyMailSender) mailSender).IsCommit()).isTrue();
     }
 
     @Test
@@ -139,7 +140,7 @@ public class UserServiceTest {
     }
 
     @Test
-    public void upgradeAllOrNothing() throws Exception {
+    public void upgradeAllOrNothing() {
         UserService testUserService = new TestUserService(users.get(3).getId());
         testUserService.setUserDao(this.userDao);
         testUserService.setUpgradePolicy(new UserLevelUpgradePolicyImpl());
@@ -159,6 +160,7 @@ public class UserServiceTest {
         }
 
         checkLevelUpgraded(users.get(1), false);
+        Assertions.assertThat(((DummyMailSender) mailSender).IsCommit()).isFalse();
     }
 
     private void checkLevel(User user, Level expectedLevel) {

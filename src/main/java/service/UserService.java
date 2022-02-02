@@ -47,6 +47,8 @@ public class UserService {
     public void upgradeLevels() {
         TransactionStatus status =
                 this.transactionManager.getTransaction(new DefaultTransactionDefinition());
+        DummyMailSender sender = (DummyMailSender) this.mailSender;
+        sender.start();
         try {
             List<User> users = userDao.getAll();
             for (User user : users) {
@@ -55,8 +57,10 @@ public class UserService {
                 }
             }
             this.transactionManager.commit(status);
+            sender.commit();
         } catch (Exception e) {
             this.transactionManager.rollback(status);
+            sender.rollback();
             throw e;
         }
     }

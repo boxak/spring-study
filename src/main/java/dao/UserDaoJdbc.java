@@ -6,8 +6,6 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 
 import javax.sql.DataSource;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.List;
 
 public class UserDaoJdbc implements UserDao {
@@ -23,32 +21,31 @@ public class UserDaoJdbc implements UserDao {
         return this.dataSource;
     }
 
-    private RowMapper<User> userMapper = new RowMapper<User>() {
-        @Override
-        public User mapRow(ResultSet rs, int rowNum) throws SQLException {
-            User user = new User();
-            user.setId(rs.getString("id"));
-            user.setName(rs.getString("name"));
-            user.setPassword(rs.getString("password"));
-            user.setLevel(Level.valueOf(rs.getInt("level")));
-            user.setLogin(rs.getInt("login"));
-            user.setRecommend(rs.getInt("recommend"));
+    private RowMapper<User> userMapper = (rs, rowNum) -> {
+        User user = new User();
+        user.setId(rs.getString("id"));
+        user.setName(rs.getString("name"));
+        user.setPassword(rs.getString("password"));
+        user.setLevel(Level.valueOf(rs.getInt("level")));
+        user.setLogin(rs.getInt("login"));
+        user.setRecommend(rs.getInt("recommend"));
+        user.setEmail(rs.getString("email"));
 
-            return user;
-        }
+        return user;
     };
 
     @Override
     public void add(User user) {
         this.jdbcTemplate.update(
-                "insert into users (id, name, password, level, login, recommend)" +
-                        " values(?, ?, ?, ?, ?, ?)",
+                "insert into users (id, name, password, level, login, recommend, email)" +
+                        " values(?, ?, ?, ?, ?, ?, ?)",
                 user.getId(),
                 user.getName(),
                 user.getPassword(),
                 user.getLevel().intValue(),
                 user.getLogin(),
-                user.getRecommend()
+                user.getRecommend(),
+                user.getEmail()
         );
     }
 
@@ -77,13 +74,14 @@ public class UserDaoJdbc implements UserDao {
     @Override
     public void update(User user) {
         this.jdbcTemplate.update(
-                "update users set name=?, password=?, level=?, login=?, recommend=? " +
+                "update users set name=?, password=?, level=?, login=?, recommend=?, email=? " +
                         "where id=?",
                 user.getName(),
                 user.getPassword(),
                 user.getLevel().intValue(),
                 user.getLogin(),
                 user.getRecommend(),
+                user.getEmail(),
                 user.getId()
         );
     }

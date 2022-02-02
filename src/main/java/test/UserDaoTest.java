@@ -37,9 +37,9 @@ public class UserDaoTest {
     @Before
     public void setUp() {
         dao.deleteAll();
-        this.user1 = new User("gyumee", "박성철", "springno1", Level.BASIC, 1, 0);
-        this.user2 = new User("leegw700", "이길원", "springno2", Level.SILVER, 55, 10);
-        this.user3 = new User("bumjin", "박범진", "springno3", Level.GOLD, 100, 40);
+        this.user1 = new User("gyumee", "박성철", "springno1", Level.BASIC, 1, 0, "springno1@naver.com");
+        this.user2 = new User("leegw700", "이길원", "springno2", Level.SILVER, 55, 10, "springno2@naver.com");
+        this.user3 = new User("bumjin", "박범진", "springno3", Level.GOLD, 100, 40, "springno3@naver.com");
     }
 
     @Test

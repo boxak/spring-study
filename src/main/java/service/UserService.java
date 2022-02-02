@@ -7,14 +7,10 @@ import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.DefaultTransactionDefinition;
 
-import javax.mail.Message;
-import javax.mail.MessagingException;
-import javax.mail.Session;
-import javax.mail.Transport;
+import javax.mail.*;
 import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
-import java.io.UnsupportedEncodingException;
 import java.util.List;
 import java.util.Properties;
 
@@ -71,6 +67,7 @@ public class UserService {
     protected void upgradeLevel(User user) {
         upgradePolicy.upgradeLevel(user);
         userDao.update(user);
+        sendUpgradeEMail(user);
     }
 
     public void add(User user) {
@@ -79,14 +76,29 @@ public class UserService {
     }
 
     private void sendUpgradeEMail(User user) {
-        Properties props = new Properties();
-        props.put("mail.smtp.host", "mail.ksug.org");
-        Session s = Session.getInstance(props, null);
 
-        MimeMessage message = new MimeMessage(s);
+        String host = "smtp.naver.com";
+        String senderId = "boxak@naver.com";
+        String password = "Second142857!";
+        int port = 587;
+
+        Properties props = new Properties();
+        props.put("mail.smtp.host", host);
+        props.put("mail.smtp.port", port);
+        props.put("mail.smtp.auth", "true");
+//        props.put("mail.smtp.ssl.enable", "true");
+//        props.put("mail.smtp.ssl.trust", host);
+
+        Session s = Session.getDefaultInstance(props, new Authenticator() {
+            @Override
+            protected PasswordAuthentication getPasswordAuthentication() {
+                return new PasswordAuthentication(senderId, password);
+            }
+        });
 
         try {
-            message.setFrom(new InternetAddress("useradmin@ksug.org"));
+            MimeMessage message = new MimeMessage(s);
+            message.setFrom(new InternetAddress(senderId));
             message.addRecipient(Message.RecipientType.TO,
                     new InternetAddress(user.getEmail()));
 

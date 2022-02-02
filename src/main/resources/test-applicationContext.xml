@@ -13,9 +13,12 @@
         <property name="dataSource" ref="dataSource" />
     </bean>
     <bean id="UserLevelUpgradePolicy" class="service.UserLevelUpgradePolicyImpl" />
+    <bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+        <property name="dataSource" ref="dataSource" />
+    </bean>
     <bean id="userService" class="service.UserService">
         <property name="userDao" ref="userDao" />
         <property name="upgradePolicy" ref="UserLevelUpgradePolicy" />
-        <property name="dataSource" ref="dataSource" />
+        <property name="transactionManager" ref="transactionManager" />
     </bean>
 </beans>

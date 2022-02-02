@@ -4,14 +4,11 @@ import dao.UserDao;
 import domain.Level;
 import domain.User;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
-import org.springframework.jdbc.datasource.DataSourceUtils;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.DefaultTransactionDefinition;
-import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 import javax.sql.DataSource;
-import java.sql.Connection;
 import java.util.List;
 
 public class UserService {
@@ -21,7 +18,9 @@ public class UserService {
 
     private UserDao userDao;
     private UserLevelUpgradePolicy upgradePolicy;
-    private DataSource dataSource;
+    private PlatformTransactionManager transactionManager;
+
+
 
     public void setUserDao(UserDao userDao) {
         this.userDao = userDao;
@@ -35,18 +34,15 @@ public class UserService {
         this.upgradePolicy = upgradePolicy;
     }
 
-    public void setDataSource(DataSource dataSource) {
-        this.dataSource = dataSource;
+    public void setTransactionManager(PlatformTransactionManager transactionManager) {
+        this.transactionManager = transactionManager;
     }
 
+
+
     public void upgradeLevels() throws Exception {
-
-        PlatformTransactionManager transactionManager =
-                new DataSourceTransactionManager(dataSource);
-
         TransactionStatus status =
-                transactionManager.getTransaction(new DefaultTransactionDefinition());
-
+                this.transactionManager.getTransaction(new DefaultTransactionDefinition());
         try {
             List<User> users = userDao.getAll();
             for (User user : users) {
@@ -54,9 +50,9 @@ public class UserService {
                     upgradeLevel(user);
                 }
             }
-            transactionManager.commit(status);
+            this.transactionManager.commit(status);
         } catch (Exception e) {
-            transactionManager.rollback(status);
+            this.transactionManager.rollback(status);
             throw e;
         }
     }

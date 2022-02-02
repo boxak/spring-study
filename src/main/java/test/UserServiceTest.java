@@ -10,6 +10,7 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.transaction.PlatformTransactionManager;
 import service.UserLevelUpgradePolicyImpl;
 import service.UserService;
 
@@ -28,6 +29,9 @@ public class UserServiceTest {
 
     @Autowired
     private UserDaoJdbc userDao;
+
+    @Autowired
+    private PlatformTransactionManager transactionManager;
 
     private List<User> users;
 
@@ -133,7 +137,7 @@ public class UserServiceTest {
         UserService testUserService = new TestUserService(users.get(3).getId());
         testUserService.setUserDao(this.userDao);
         testUserService.setUpgradePolicy(new UserLevelUpgradePolicyImpl());
-        testUserService.setDataSource(this.userDao.getDataSource());
+        testUserService.setTransactionManager(transactionManager);
 
         userDao.deleteAll();
 

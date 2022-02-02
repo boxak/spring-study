@@ -86,11 +86,5 @@ public class UserDaoJdbc implements UserDao {
                 user.getRecommend(),
                 user.getId()
         );
-
-        try {
-            System.out.println("dao connection : " + this.jdbcTemplate.getDataSource().getConnection());
-        } catch (Exception e) {
-
-        }
     }
 }

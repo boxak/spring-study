@@ -1,5 +1,6 @@
 package test;
 
+import dao.MockUserDao;
 import dao.UserDaoJdbc;
 import domain.Level;
 import domain.User;
@@ -30,9 +31,6 @@ public class UserServiceTest {
 
     @Autowired
     private UserService userService;
-
-    @Autowired
-    private UserServiceImpl userServiceImpl;
 
     @Autowired
     private UserDaoJdbc userDao;
@@ -108,24 +106,22 @@ public class UserServiceTest {
     @Test
     @DirtiesContext
     public void upgradeLevels() {
-        userDao.deleteAll();
+        // 고립된 테스트에서는 테스트 대상 오브젝트를 직접 생성.
+        UserServiceImpl userServiceImpl = new UserServiceImpl();
 
-        for (User user : users) {
-            userDao.add(user);
-        }
-
+        MockUserDao mockUserDao = new MockUserDao(this.users);
         MockMailSender mockMailSender = new MockMailSender();
-        // 수동DI를 쓰므로 DirtiesContext 애노테이션을 붙여준다.
+        UserLevelUpgradePolicyImpl upgradePolicyImpl = new UserLevelUpgradePolicyImpl();
+        userServiceImpl.setUserDao(mockUserDao);
         userServiceImpl.setMailSender(mockMailSender);
+        userServiceImpl.setUpgradePolicy(upgradePolicyImpl);
 
         userServiceImpl.upgradeLevels();
 
-        checkLevelUpgraded(users.get(0), false);
-        checkLevelUpgraded(users.get(1), true);
-        checkLevelUpgraded(users.get(2), false);
-        checkLevelUpgraded(users.get(3), true);
-        checkLevelUpgraded(users.get(4), false);
-        //Assertions.assertThat(((DummyMailSender) mailSender).IsCommit()).isTrue();
+        List<User> updated = mockUserDao.getUpdated();
+        Assertions.assertThat(updated).hasSize(2);
+        checkUserAndLevel(updated.get(0), "joytouch", Level.SILVER);
+        checkUserAndLevel(updated.get(1), "madnite1", Level.GOLD);
 
         List<String> request = mockMailSender.getRequests();
         Assertions.assertThat(request).hasSize(2);
@@ -198,6 +194,11 @@ public class UserServiceTest {
 
         checkLevelUpgraded(users.get(1), false);
         Assertions.assertThat(mailTransactionManager.isCommit()).isFalse();
+    }
+
+    private void checkUserAndLevel(User updated, String expectedId, Level expectedLevel) {
+        Assertions.assertThat(updated.getId()).isEqualTo(expectedId);
+        Assertions.assertThat(updated.getLevel()).isEqualTo(expectedLevel);
     }
 
     private void checkLevel(User user, Level expectedLevel) {

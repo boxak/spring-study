@@ -18,20 +18,21 @@ import org.springframework.transaction.PlatformTransactionManager;
 import service.DummyMailSender;
 import service.UserLevelUpgradePolicyImpl;
 import service.UserService;
+import service.UserServiceImpl;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import static service.UserService.MIN_LOGCOUNT_FOR_SILVER;
-import static service.UserService.MIN_RECCOMEND_FOR_GOLD;
+import static service.UserLevelUpgradePolicyImpl.MIN_LOGCOUNT_FOR_SILVER;
+import static service.UserLevelUpgradePolicyImpl.MIN_RECCOMEND_FOR_GOLD;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = "/test-applicationContext.xml")
 public class UserServiceTest {
 
     @Autowired
-    private UserService userService;
+    private UserServiceImpl userService;
 
     @Autowired
     private UserDaoJdbc userDao;
@@ -46,7 +47,7 @@ public class UserServiceTest {
 
     private User user;
 
-    static class TestUserService extends UserService {
+    static class TestUserService extends UserServiceImpl {
         private String id;
 
         private TestUserService(String id) {
@@ -170,7 +171,7 @@ public class UserServiceTest {
 
     @Test
     public void upgradeAllOrNothing() {
-        UserService testUserService = new TestUserService(users.get(3).getId());
+        UserServiceImpl testUserService = new TestUserService(users.get(3).getId());
         testUserService.setUserDao(this.userDao);
         testUserService.setUpgradePolicy(new UserLevelUpgradePolicyImpl());
         testUserService.setTransactionManager(transactionManager);

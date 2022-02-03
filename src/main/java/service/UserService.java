@@ -50,18 +50,22 @@ public class UserService {
         DummyMailSender sender = (DummyMailSender) this.mailSender;
         sender.start();
         try {
-            List<User> users = userDao.getAll();
-            for (User user : users) {
-                if (canUpgradeLevel(user)) {
-                    upgradeLevel(user);
-                }
-            }
+            upgradeLevelsInternal();
             this.transactionManager.commit(status);
             sender.commit();
         } catch (Exception e) {
             this.transactionManager.rollback(status);
             sender.rollback();
             throw e;
+        }
+    }
+
+    private void upgradeLevelsInternal() {
+        List<User> users = userDao.getAll();
+        for (User user : users) {
+            if (canUpgradeLevel(user)) {
+                upgradeLevel(user);
+            }
         }
     }
 

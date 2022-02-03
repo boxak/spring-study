@@ -15,10 +15,7 @@ import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.PlatformTransactionManager;
-import service.DummyMailSender;
-import service.UserLevelUpgradePolicyImpl;
-import service.UserService;
-import service.UserServiceImpl;
+import service.*;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -32,7 +29,10 @@ import static service.UserLevelUpgradePolicyImpl.MIN_RECCOMEND_FOR_GOLD;
 public class UserServiceTest {
 
     @Autowired
-    private UserServiceImpl userService;
+    private UserService userService;
+
+    @Autowired
+    private UserServiceImpl userServiceImpl;
 
     @Autowired
     private UserDaoJdbc userDao;
@@ -42,6 +42,9 @@ public class UserServiceTest {
 
     @Autowired
     private MailSender mailSender;
+
+    @Autowired
+    private MailTransactionManager mailTransactionManager;
 
     private List<User> users;
 
@@ -113,9 +116,9 @@ public class UserServiceTest {
 
         MockMailSender mockMailSender = new MockMailSender();
         // 수동DI를 쓰므로 DirtiesContext 애노테이션을 붙여준다.
-        userService.setMailSender(mockMailSender);
+        userServiceImpl.setMailSender(mockMailSender);
 
-        userService.upgradeLevels();
+        userServiceImpl.upgradeLevels();
 
         checkLevelUpgraded(users.get(0), false);
         checkLevelUpgraded(users.get(1), true);
@@ -171,11 +174,15 @@ public class UserServiceTest {
 
     @Test
     public void upgradeAllOrNothing() {
-        UserServiceImpl testUserService = new TestUserService(users.get(3).getId());
-        testUserService.setUserDao(this.userDao);
-        testUserService.setUpgradePolicy(new UserLevelUpgradePolicyImpl());
-        testUserService.setTransactionManager(transactionManager);
-        testUserService.setMailSender(mailSender);
+        UserServiceImpl testUserServiceImpl = new TestUserService(users.get(3).getId());
+        testUserServiceImpl.setUserDao(this.userDao);
+        testUserServiceImpl.setUpgradePolicy(new UserLevelUpgradePolicyImpl());
+        testUserServiceImpl.setMailSender(mailSender);
+
+        UserServiceTx testUserServiceTx = new UserServiceTx();
+        testUserServiceTx.setUserServiceImpl(testUserServiceImpl);
+        testUserServiceTx.setTransactionManager(transactionManager);
+        testUserServiceTx.setMailTransactionManager(mailTransactionManager);
 
         userDao.deleteAll();
 
@@ -184,13 +191,13 @@ public class UserServiceTest {
         }
 
         try {
-            testUserService.upgradeLevels();
+            testUserServiceTx.upgradeLevels();
             Assertions.fail("TestUserServiceException expected");
         } catch (TestUserServiceException e) {
         }
 
         checkLevelUpgraded(users.get(1), false);
-        Assertions.assertThat(((DummyMailSender) mailSender).IsCommit()).isFalse();
+        Assertions.assertThat(mailTransactionManager.isCommit()).isFalse();
     }
 
     private void checkLevel(User user, Level expectedLevel) {

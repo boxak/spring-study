@@ -17,10 +17,17 @@
         <property name="dataSource" ref="dataSource" />
     </bean>
     <bean id="mailSender" class="service.DummyMailSender" />
-    <bean id="userService" class="service.UserServiceImpl">
+    <bean id="mailTransactionManager" class="service.MailTransactionManager">
+        <property name="mailSender" ref="mailSender" />
+    </bean>
+    <bean id="userServiceImpl" class="service.UserServiceImpl">
         <property name="userDao" ref="userDao" />
         <property name="upgradePolicy" ref="UserLevelUpgradePolicy" />
-        <property name="transactionManager" ref="transactionManager" />
         <property name="mailSender" ref="mailSender" />
+    </bean>
+    <bean id="userService" class="service.UserServiceTx">
+        <property name="userServiceImpl" ref="userServiceImpl" />
+        <property name="transactionManager" ref="transactionManager" />
+        <property name="mailTransactionManager" ref="mailTransactionManager" />
     </bean>
 </beans>

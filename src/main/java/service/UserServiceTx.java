@@ -35,7 +35,9 @@ public class UserServiceTx implements UserService {
                 this.transactionManager.getTransaction(new DefaultTransactionDefinition());
         mailTransactionManager.start();
         try {
+            // 타깃 오브젝트에 위임하는 부분.
             userServiceImpl.upgradeLevels();
+
             this.transactionManager.commit(status);
             mailTransactionManager.commit();
         } catch (RuntimeException e) {

@@ -25,9 +25,11 @@
         <property name="upgradePolicy" ref="UserLevelUpgradePolicy" />
         <property name="mailSender" ref="mailSender" />
     </bean>
-    <bean id="userService" class="service.UserServiceTx">
-        <property name="userServiceImpl" ref="userServiceImpl" />
+    <bean id="userService" class="factory.TxProxyFactoryBean">
+        <property name="target" ref="userServiceImpl" />
         <property name="transactionManager" ref="transactionManager" />
         <property name="mailTransactionManager" ref="mailTransactionManager" />
+        <property name="pattern" value="upgradeLevels" />
+        <property name="serviceInterface" value="service.UserService" />
     </bean>
 </beans>

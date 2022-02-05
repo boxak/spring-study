@@ -4,6 +4,7 @@ import org.assertj.core.api.Assertions;
 import org.junit.Test;
 import proxy.Hello;
 import proxy.HelloTarget;
+import proxy.HelloUppercase;
 
 import java.lang.reflect.Method;
 
@@ -31,5 +32,13 @@ public class ReflectionTest {
         Assertions.assertThat(hello.sayHello("Toby")).isEqualTo("Hello Toby");
         Assertions.assertThat(hello.sayHi("Toby")).isEqualTo("Hi Toby");
         Assertions.assertThat(hello.sayThankYou("Toby")).isEqualTo("Thank You Toby");
+    }
+
+    @Test
+    public void HelloUppercase() {
+        Hello proxiedHello = new HelloUppercase(new HelloTarget());
+        Assertions.assertThat(proxiedHello.sayHello("Toby")).isEqualTo("HELLO TOBY");
+        Assertions.assertThat(proxiedHello.sayHi("Toby")).isEqualTo("HI TOBY");
+        Assertions.assertThat(proxiedHello.sayThankYou("Toby")).isEqualTo("THANK YOU TOBY");
     }
 }

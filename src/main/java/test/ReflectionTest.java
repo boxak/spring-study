@@ -5,8 +5,10 @@ import org.junit.Test;
 import proxy.Hello;
 import proxy.HelloTarget;
 import proxy.HelloUppercase;
+import proxy.UppercaseHandler;
 
 import java.lang.reflect.Method;
+import java.lang.reflect.Proxy;
 
 public class ReflectionTest {
     @Test
@@ -36,7 +38,11 @@ public class ReflectionTest {
 
     @Test
     public void HelloUppercase() {
-        Hello proxiedHello = new HelloUppercase(new HelloTarget());
+        Hello proxiedHello = (Hello) Proxy.newProxyInstance(
+                getClass().getClassLoader(),
+                new Class[] {Hello.class},
+                new UppercaseHandler(new HelloTarget())
+        );
         Assertions.assertThat(proxiedHello.sayHello("Toby")).isEqualTo("HELLO TOBY");
         Assertions.assertThat(proxiedHello.sayHi("Toby")).isEqualTo("HI TOBY");
         Assertions.assertThat(proxiedHello.sayThankYou("Toby")).isEqualTo("THANK YOU TOBY");

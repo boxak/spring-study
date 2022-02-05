@@ -5,12 +5,14 @@ import dao.UserDao;
 import dao.UserDaoJdbc;
 import domain.Level;
 import domain.User;
+import factory.TxProxyFactoryBean;
 import org.assertj.core.api.Assertions;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
 import org.springframework.mail.MailException;
 import org.springframework.mail.MailSender;
 import org.springframework.mail.SimpleMailMessage;
@@ -48,6 +50,9 @@ public class UserServiceTest {
 
     @Autowired
     private MailTransactionManager mailTransactionManager;
+
+    @Autowired
+    private ApplicationContext context;
 
     private List<User> users;
 
@@ -203,7 +208,8 @@ public class UserServiceTest {
     }
 
     @Test
-    public void upgradeAllOrNothing() {
+    @DirtiesContext
+    public void upgradeAllOrNothing() throws Exception {
 
         userDao.deleteAll();
 
@@ -212,17 +218,11 @@ public class UserServiceTest {
         testUserServiceImpl.setUpgradePolicy(new UserLevelUpgradePolicyImpl());
         testUserServiceImpl.setMailSender(mailSender);
 
-        TransactionHandler txHandler = new TransactionHandler();
-        txHandler.setTarget(testUserServiceImpl);
-        txHandler.setTransactionManager(transactionManager);
-        txHandler.setMailTransactionManager(mailTransactionManager);
-        txHandler.setPattern("upgradeLevels");
+        TxProxyFactoryBean txProxyFactoryBean =
+                context.getBean("&userService", TxProxyFactoryBean.class);
 
-        UserService txUserService = (UserService) Proxy.newProxyInstance(
-                getClass().getClassLoader(),
-                new Class[] { UserService.class },
-                txHandler
-        );
+        txProxyFactoryBean.setTarget(testUserServiceImpl);
+        UserService txUserService = (UserService) txProxyFactoryBean.getObject();
 
         for (User user : users) {
             userDao.add(user);

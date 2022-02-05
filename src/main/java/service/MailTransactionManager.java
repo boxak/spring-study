@@ -23,6 +23,7 @@ public class MailTransactionManager {
     }
     
     public void commit() {
+        if (MailUtils.isEmpty()) return;
         result = true;
         System.out.println("MailSender commit");
         for (SimpleMailMessage msg : MailUtils.getMsgs()) {
@@ -33,6 +34,7 @@ public class MailTransactionManager {
     }
     
     public void rollback() {
+        if (MailUtils.isEmpty()) return;
         result = false;
         System.out.println("MailSender rollback");
     }

@@ -20,6 +20,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.PlatformTransactionManager;
 import service.*;
 
+import java.lang.reflect.Proxy;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -203,24 +204,32 @@ public class UserServiceTest {
 
     @Test
     public void upgradeAllOrNothing() {
+
+        userDao.deleteAll();
+
         UserServiceImpl testUserServiceImpl = new TestUserService(users.get(3).getId());
         testUserServiceImpl.setUserDao(this.userDao);
         testUserServiceImpl.setUpgradePolicy(new UserLevelUpgradePolicyImpl());
         testUserServiceImpl.setMailSender(mailSender);
 
-        UserServiceTx testUserServiceTx = new UserServiceTx();
-        testUserServiceTx.setUserServiceImpl(testUserServiceImpl);
-        testUserServiceTx.setTransactionManager(transactionManager);
-        testUserServiceTx.setMailTransactionManager(mailTransactionManager);
+        TransactionHandler txHandler = new TransactionHandler();
+        txHandler.setTarget(testUserServiceImpl);
+        txHandler.setTransactionManager(transactionManager);
+        txHandler.setMailTransactionManager(mailTransactionManager);
+        txHandler.setPattern("upgradeLevels");
 
-        userDao.deleteAll();
+        UserService txUserService = (UserService) Proxy.newProxyInstance(
+                getClass().getClassLoader(),
+                new Class[] { UserService.class },
+                txHandler
+        );
 
         for (User user : users) {
             userDao.add(user);
         }
 
         try {
-            testUserServiceTx.upgradeLevels();
+            txUserService.upgradeLevels();
             Assertions.fail("TestUserServiceException expected");
         } catch (TestUserServiceException e) {
         }

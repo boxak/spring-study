@@ -1,0 +1,70 @@
+package test;
+
+import org.aopalliance.intercept.MethodInterceptor;
+import org.aopalliance.intercept.MethodInvocation;
+import org.assertj.core.api.Assertions;
+import org.junit.Test;
+import org.springframework.aop.framework.ProxyFactoryBean;
+import proxy.UppercaseHandler;
+
+import java.lang.reflect.Proxy;
+
+public class DynamicProxyTest {
+
+    @Test
+    public void simpleProxy() {
+        Hello proxiedHello = (Hello) Proxy.newProxyInstance(
+                getClass().getClassLoader(),
+                new Class[] { Hello.class },
+                new UppercaseHandler(new HelloTarget())
+        );
+    }
+
+    @Test
+    public void proxyFactoryBean() {
+        ProxyFactoryBean pfBean = new ProxyFactoryBean();
+        pfBean.setTarget(new HelloTarget());
+        pfBean.addAdvice(new UppercaseAdvice());
+
+        Hello proxiedHello = (Hello) pfBean.getObject();
+
+        Assertions.assertThat(proxiedHello.sayHello("Toby")).isEqualTo("HELLO TOBY");
+        Assertions.assertThat(proxiedHello.sayHi("Toby")).isEqualTo("HI TOBY");
+        Assertions.assertThat(proxiedHello.sayThankYou("Toby")).isEqualTo("THANK YOU TOBY");
+    }
+
+    static class UppercaseAdvice implements MethodInterceptor {
+        @Override
+        public Object invoke(MethodInvocation methodInvocation) throws Throwable {
+            // 리플렉션의 Method와 달리, MethodInvocation은 메소드 정보와
+            // 타깃 오브젝트를 알고 있어서 타깃 오브젝트를 전달할 필요X
+            String ret = (String) methodInvocation.proceed();
+            return ret.toUpperCase();
+        }
+    }
+
+    static interface Hello {
+        String sayHello(String name);
+        String sayHi(String name);
+        String sayThankYou(String name);
+    }
+
+    static class HelloTarget implements Hello {
+
+        @Override
+        public String sayHello(String name) {
+            return "Hello " + name;
+        }
+
+        @Override
+        public String sayHi(String name) {
+            return "Hi " + name;
+        }
+
+        @Override
+        public String sayThankYou(String name) {
+            return "Thank You " + name;
+        }
+    }
+
+}

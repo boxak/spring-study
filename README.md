@@ -314,8 +314,6 @@ UserDao의 모든 코드가 ConnectionMaker 인터페이스 외에는 어떤 클
 
 그래서 UserDao 클래스를 사용하는 main() 메서드 즉, UserDao의 클라이언트를 떨어뜨려놔야 한다. UserDaoTest 라는 이름의 클래스를 만들고 main 메서드를 추가한다.
 
-
-
 ```java
 package dao;
 
@@ -327,7 +325,7 @@ public class UserDaoTest {
     public static void main(String[] args) throws ClassNotFoundException, SQLException {
         ConnectionMaker connectionMaker = new SimpleConnectionMaker();
 
-        UserDao dao = new UserDao(connectionMaker);
+        UserDaoJdbc dao = new UserDaoJdbc(connectionMaker);
 
         User user = new User();
         user.setId("whiteship");
@@ -397,11 +395,11 @@ DaoFactory.java
 package dao;
 
 public class DaoFactory {
-    public UserDao userDao() {
-        
+    public UserDaoJdbc userDao() {
+
         ConnectionMaker connectionMaker = new SimpleConnectionMaker();
-        UserDao userDao = new UserDao(connectionMaker);
-        
+        UserDaoJdbc userDao = new UserDaoJdbc(connectionMaker);
+
         return userDao;
     }
 }

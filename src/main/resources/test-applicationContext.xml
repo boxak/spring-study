@@ -9,7 +9,27 @@
         <property name="username" value="root" />
         <property name="password" value="1234" />
     </bean>
-    <bean id="userDao" class="dao.UserDao">
+    <bean id="userDao" class="dao.UserDaoJdbc">
         <property name="dataSource" ref="dataSource" />
+    </bean>
+    <bean id="UserLevelUpgradePolicy" class="service.UserLevelUpgradePolicyImpl" />
+    <bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+        <property name="dataSource" ref="dataSource" />
+    </bean>
+    <bean id="mailSender" class="service.DummyMailSender" />
+    <bean id="mailTransactionManager" class="service.MailTransactionManager">
+        <property name="mailSender" ref="mailSender" />
+    </bean>
+    <bean id="userServiceImpl" class="service.UserServiceImpl">
+        <property name="userDao" ref="userDao" />
+        <property name="upgradePolicy" ref="UserLevelUpgradePolicy" />
+        <property name="mailSender" ref="mailSender" />
+    </bean>
+    <bean id="userService" class="factory.TxProxyFactoryBean">
+        <property name="target" ref="userServiceImpl" />
+        <property name="transactionManager" ref="transactionManager" />
+        <property name="mailTransactionManager" ref="mailTransactionManager" />
+        <property name="pattern" value="upgradeLevels" />
+        <property name="serviceInterface" value="service.UserService" />
     </bean>
 </beans>

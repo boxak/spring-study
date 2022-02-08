@@ -109,6 +109,12 @@ public class UserServiceTest {
     }
 
     @Test
+    public void advisorAutoProxyCreator() {
+        Assertions.assertThat(this.testUserService)
+                .isInstanceOf(java.lang.reflect.Proxy.class);
+    }
+
+    @Test
     @DirtiesContext
     public void upgradeLevels() {
         // 고립된 테스트에서는 테스트 대상 오브젝트를 직접 생성.

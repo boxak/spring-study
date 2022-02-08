@@ -22,6 +22,8 @@ public class DynamicProxyTest {
 
     @Test
     public void proxyFactoryBean() {
+        // ProxyFactoryBean은 알려주지 않아도 타겟 오브젝트가
+        // 구현하는 인터페이스 정보를 알아낸다.
         ProxyFactoryBean pfBean = new ProxyFactoryBean();
         pfBean.setTarget(new HelloTarget());
         pfBean.addAdvice(new UppercaseAdvice());

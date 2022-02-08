@@ -25,11 +25,23 @@
         <property name="upgradePolicy" ref="UserLevelUpgradePolicy" />
         <property name="mailSender" ref="mailSender" />
     </bean>
-    <bean id="userService" class="factory.TxProxyFactoryBean">
-        <property name="target" ref="userServiceImpl" />
+    <bean id="transactionAdvice" class="service.TransactionAdvice">
         <property name="transactionManager" ref="transactionManager" />
         <property name="mailTransactionManager" ref="mailTransactionManager" />
-        <property name="pattern" value="upgradeLevels" />
-        <property name="serviceInterface" value="service.UserService" />
+    </bean>
+    <bean id="transactionPointcut" class="org.springframework.aop.support.NameMatchMethodPointcut">
+        <property name="mappedName" value="upgrade*" />
+    </bean>
+    <bean id="transactionAdvisor" class="org.springframework.aop.support.DefaultPointcutAdvisor">
+        <property name="advice" ref="transactionAdvice" />
+        <property name="pointcut" ref="transactionPointcut" />
+    </bean>
+    <bean id="userService" class="org.springframework.aop.framework.ProxyFactoryBean">
+        <property name="target" ref="userServiceImpl" />
+        <property name="interceptorNames">
+            <list>
+                <value>transactionAdvisor</value>
+            </list>
+        </property>
     </bean>
 </beans>

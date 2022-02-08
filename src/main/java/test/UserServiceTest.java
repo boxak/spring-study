@@ -11,6 +11,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
+import org.springframework.aop.framework.ProxyFactoryBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.mail.MailException;
@@ -218,8 +219,8 @@ public class UserServiceTest {
         testUserServiceImpl.setUpgradePolicy(new UserLevelUpgradePolicyImpl());
         testUserServiceImpl.setMailSender(mailSender);
 
-        TxProxyFactoryBean txProxyFactoryBean =
-                context.getBean("&userService", TxProxyFactoryBean.class);
+        ProxyFactoryBean txProxyFactoryBean =
+                context.getBean("&userService", ProxyFactoryBean.class);
 
         txProxyFactoryBean.setTarget(testUserServiceImpl);
         UserService txUserService = (UserService) txProxyFactoryBean.getObject();

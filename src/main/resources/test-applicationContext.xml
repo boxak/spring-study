@@ -32,7 +32,7 @@
         <property name="transactionManager" ref="transactionManager" />
         <property name="mailTransactionManager" ref="mailTransactionManager" />
     </bean>
-    <bean id="transactionPointcut" class="proxy.NameMatchClassMethodPointcut">
+    <bean id="transactionPointcut" class="pointcut.NameMatchClassMethodPointcut">
         <property name="mappedClassName" value="*ServiceImpl" />
         <property name="mappedName" value="upgrade*" />
     </bean>

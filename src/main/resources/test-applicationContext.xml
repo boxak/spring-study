@@ -31,14 +31,5 @@
     </bean>
     <!-- 스태틱 멤버 클래스는 $로 지정한다, parent를 쓰면 해당 빈의 설정을 상속받는다. -->
     <bean id="testUserService" class="test.UserServiceTest$TestUserServiceImpl" parent="userService" />
-    <bean class="org.springframework.aop.framework.autoproxy.DefaultAdvisorAutoProxyCreator" />
-    <tx:advice id="transactionAdvice" transaction-manager="transactionManager">
-        <tx:attributes>
-            <tx:method name="get*" read-only="true" />
-            <tx:method name="*" />
-        </tx:attributes>
-    </tx:advice>
-    <aop:config>
-        <aop:advisor advice-ref="transactionAdvice" pointcut="bean(*Service)" />
-    </aop:config>
+    <tx:annotation-driven />
 </beans>

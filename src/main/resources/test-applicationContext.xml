@@ -30,9 +30,15 @@
     <!-- 스태틱 멤버 클래스는 $로 지정한다, parent를 쓰면 해당 빈의 설정을 상속받는다. -->
     <bean id="testUserService" class="test.UserServiceTest$TestUserServiceImpl" parent="userService" />
     <bean class="org.springframework.aop.framework.autoproxy.DefaultAdvisorAutoProxyCreator" />
-    <bean id="transactionAdvice" class="service.TransactionAdvice">
+    <bean id="transactionAdvice" class="org.springframework.transaction.interceptor.TransactionInterceptor">
         <property name="transactionManager" ref="transactionManager" />
-        <property name="mailTransactionManager" ref="mailTransactionManager" />
+        <property name="transactionAttributes">
+            <props>
+                <prop key="get*">PROPAGATION_REQUIRED,readOnly,timeout_30</prop>
+                <prop key="upgrade*">PROPAGATION_REQUIRES_NEW,ISOLATION_SERIALIZABLE</prop>
+                <prop key="*">PROPAGATION_REQUIRED</prop>
+            </props>
+        </property>
     </bean>
     <aop:config>
         <aop:pointcut id="transactionPointcut" expression="execution(* *..*ServiceImpl.upgrade*(..))" />

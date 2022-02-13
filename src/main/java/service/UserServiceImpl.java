@@ -5,11 +5,8 @@ import domain.Level;
 import domain.User;
 import org.springframework.mail.MailSender;
 import org.springframework.mail.SimpleMailMessage;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-
-@Transactional
 public class UserServiceImpl implements UserService {
 
     private UserDao userDao;

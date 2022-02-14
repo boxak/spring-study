@@ -246,14 +246,20 @@ public class UserServiceTest {
 
     @Test
     public void transactionSync() {
+
+        userDao.deleteAll();
+        Assertions.assertThat(userDao.getCount()).isEqualTo(0);
+
         DefaultTransactionDefinition txDefinition = new DefaultTransactionDefinition();
         TransactionStatus txStatus = transactionManager.getTransaction(txDefinition);
-        userService.deleteAll();
 
         userService.add(users.get(0));
         userService.add(users.get(1));
+        Assertions.assertThat(userDao.getCount()).isEqualTo(2);
 
-        transactionManager.commit(txStatus);
+        transactionManager.rollback(txStatus);
+
+        Assertions.assertThat(userDao.getCount()).isEqualTo(0);
     }
 
     private void checkUserAndLevel(User updated, String expectedId, Level expectedLevel) {

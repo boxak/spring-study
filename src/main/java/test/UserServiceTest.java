@@ -235,7 +235,6 @@ public class UserServiceTest {
         }
 
         checkLevelUpgraded(users.get(1), false);
-        Assertions.assertThat(mailTransactionManager.isCommit()).isFalse();
     }
 
     @Test(expected = TransientDataAccessException.class)

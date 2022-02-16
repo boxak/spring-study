@@ -38,7 +38,7 @@ public class UserServiceTest {
 
     @Autowired
     private UserService userService;
-
+    @Autowired
     @Autowired
     private UserService testUserService;
 

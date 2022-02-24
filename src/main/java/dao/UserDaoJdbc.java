@@ -20,7 +20,7 @@ public class UserDaoJdbc implements UserDao {
     public DataSource getDataSource() {
         return this.dataSource;
     }
-//
+
     private RowMapper<User> userMapper = (rs, rowNum) -> {
         User user = new User();
         user.setId(rs.getString("id"));

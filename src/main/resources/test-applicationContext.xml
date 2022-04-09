@@ -1,7 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xmlns:tx="http://www.springframework.org/schema/tx"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+                           http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd
+                           http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd">
     <bean id="dataSource"
           class="org.springframework.jdbc.datasource.SimpleDriverDataSource">
         <property name="driverClass" value="com.mysql.cj.jdbc.Driver" />
@@ -20,16 +24,12 @@
     <bean id="mailTransactionManager" class="service.MailTransactionManager">
         <property name="mailSender" ref="mailSender" />
     </bean>
-    <bean id="userServiceImpl" class="service.UserServiceImpl">
+    <bean id="userService" class="service.UserServiceImpl">
         <property name="userDao" ref="userDao" />
         <property name="upgradePolicy" ref="UserLevelUpgradePolicy" />
         <property name="mailSender" ref="mailSender" />
     </bean>
-    <bean id="userService" class="factory.TxProxyFactoryBean">
-        <property name="target" ref="userServiceImpl" />
-        <property name="transactionManager" ref="transactionManager" />
-        <property name="mailTransactionManager" ref="mailTransactionManager" />
-        <property name="pattern" value="upgradeLevels" />
-        <property name="serviceInterface" value="service.UserService" />
-    </bean>
+    <!-- 스태틱 멤버 클래스는 $로 지정한다, parent를 쓰면 해당 빈의 설정을 상속받는다. -->
+    <bean id="testUserService" class="test.UserServiceTest$TestUserServiceImpl" parent="userService" />
+    <tx:annotation-driven />
 </beans>

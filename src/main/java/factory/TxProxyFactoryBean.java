@@ -1,11 +1,15 @@
 package factory;
 
+import org.aopalliance.intercept.MethodInterceptor;
+import org.aopalliance.intercept.MethodInvocation;
+import org.springframework.aop.framework.ProxyFactoryBean;
+import org.springframework.aop.support.DefaultPointcutAdvisor;
+import org.springframework.aop.support.NameMatchMethodPointcut;
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.TransactionStatus;
+import org.springframework.transaction.support.DefaultTransactionDefinition;
 import service.MailTransactionManager;
-import service.TransactionHandler;
-
-import java.lang.reflect.Proxy;
 
 public class TxProxyFactoryBean implements FactoryBean<Object> {
 
@@ -15,6 +19,27 @@ public class TxProxyFactoryBean implements FactoryBean<Object> {
     String pattern;
     // 다이나믹 프록시를 생성할 때 필요.
     Class<?> serviceInterface;
+
+    class TxAdvice implements MethodInterceptor {
+
+        @Override
+        public Object invoke(MethodInvocation invocation) throws Throwable {
+
+            TransactionStatus status = transactionManager.getTransaction(new DefaultTransactionDefinition());
+            mailTransactionManager.start();
+
+            try {
+                Object ret = invocation.proceed();
+                transactionManager.commit(status);
+                mailTransactionManager.commit();
+                return ret;
+            } catch (Exception e) {
+                transactionManager.rollback(status);
+                mailTransactionManager.rollback();
+                throw e;
+            }
+        }
+    }
 
     public void setTarget(Object target) {
         this.target = target;
@@ -38,18 +63,15 @@ public class TxProxyFactoryBean implements FactoryBean<Object> {
 
     @Override
     public Object getObject() throws Exception {
+        ProxyFactoryBean pfBean = new ProxyFactoryBean();
+        pfBean.setTarget(target);
 
-        TransactionHandler txHandler = new TransactionHandler();
-        txHandler.setTarget(target);
-        txHandler.setTransactionManager(transactionManager);
-        txHandler.setMailTransactionManager(mailTransactionManager);
-        txHandler.setPattern(pattern);
+        NameMatchMethodPointcut pointcut = new NameMatchMethodPointcut();
+        pointcut.setMappedName("upgradeLevels");
 
-        return Proxy.newProxyInstance(
-                getClass().getClassLoader(),
-                new Class[]{ serviceInterface },
-                txHandler
-        );
+        pfBean.addAdvisor(new DefaultPointcutAdvisor(pointcut, new TxAdvice()));
+
+        return pfBean.getObject();
     }
 
     @Override

@@ -16,6 +16,7 @@ public class MailUtils {
     }
 
     static public void add(SimpleMailMessage simpleMailMessage) {
+        if (CollectionUtils.isEmpty(msgQue)) return;
         msgQue.add(simpleMailMessage);
     }
 

@@ -5,7 +5,6 @@ import dao.UserDao;
 import dao.UserDaoJdbc;
 import domain.Level;
 import domain.User;
-import factory.TxProxyFactoryBean;
 import org.assertj.core.api.Assertions;
 import org.junit.Before;
 import org.junit.Test;
@@ -13,6 +12,7 @@ import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
+import org.springframework.dao.TransientDataAccessException;
 import org.springframework.mail.MailException;
 import org.springframework.mail.MailSender;
 import org.springframework.mail.SimpleMailMessage;
@@ -20,17 +20,17 @@ import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.TransactionStatus;
+import org.springframework.transaction.support.DefaultTransactionDefinition;
 import service.*;
 
-import java.lang.reflect.Proxy;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import static org.mockito.Mockito.*;
 import static service.UserLevelUpgradePolicyImpl.MIN_LOGCOUNT_FOR_SILVER;
 import static service.UserLevelUpgradePolicyImpl.MIN_RECCOMEND_FOR_GOLD;
-
-import static org.mockito.Mockito.*;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = "/test-applicationContext.xml")
@@ -38,6 +38,9 @@ public class UserServiceTest {
 
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private UserService testUserService;
 
     @Autowired
     private UserDaoJdbc userDao;
@@ -58,19 +61,23 @@ public class UserServiceTest {
 
     private User user;
 
-    static class TestUserService extends UserServiceImpl {
-        private String id;
-
-        private TestUserService(String id) {
-            this.id = id;
-        }
-
+    static class TestUserServiceImpl extends UserServiceImpl {
+        private String id = "madnite1";
         @Override
         protected void upgradeLevel(User user) {
             if (user.getId().equals(this.id)) {
                 throw new TestUserServiceException();
             }
             super.upgradeLevel(user);
+        }
+
+        @Override
+        public List<User> getAll() {
+            for (User user : super.getAll()) {
+                super.update(user);
+            }
+
+            return null;
         }
     }
 
@@ -111,6 +118,12 @@ public class UserServiceTest {
     @Test
     public void bean() {
         Assertions.assertThat(this.userService).isNotNull();
+    }
+
+    @Test
+    public void advisorAutoProxyCreator() {
+        Assertions.assertThat(this.testUserService)
+                .isInstanceOf(java.lang.reflect.Proxy.class);
     }
 
     @Test
@@ -213,29 +226,40 @@ public class UserServiceTest {
 
         userDao.deleteAll();
 
-        UserServiceImpl testUserServiceImpl = new TestUserService(users.get(3).getId());
-        testUserServiceImpl.setUserDao(this.userDao);
-        testUserServiceImpl.setUpgradePolicy(new UserLevelUpgradePolicyImpl());
-        testUserServiceImpl.setMailSender(mailSender);
-
-        TxProxyFactoryBean txProxyFactoryBean =
-                context.getBean("&userService", TxProxyFactoryBean.class);
-
-        txProxyFactoryBean.setTarget(testUserServiceImpl);
-        UserService txUserService = (UserService) txProxyFactoryBean.getObject();
-
         for (User user : users) {
             userDao.add(user);
         }
 
         try {
-            txUserService.upgradeLevels();
+            this.testUserService.upgradeLevels();
             Assertions.fail("TestUserServiceException expected");
         } catch (TestUserServiceException e) {
         }
 
         checkLevelUpgraded(users.get(1), false);
-        Assertions.assertThat(mailTransactionManager.isCommit()).isFalse();
+    }
+
+    @Test(expected = TransientDataAccessException.class)
+    public void readOnlyTransactionAttribute() {
+        testUserService.getAll();
+    }
+
+    @Test
+    public void transactionSync() {
+
+        userDao.deleteAll();
+        Assertions.assertThat(userDao.getCount()).isEqualTo(0);
+
+        DefaultTransactionDefinition txDefinition = new DefaultTransactionDefinition();
+        TransactionStatus txStatus = transactionManager.getTransaction(txDefinition);
+
+        userService.add(users.get(0));
+        userService.add(users.get(1));
+        Assertions.assertThat(userDao.getCount()).isEqualTo(2);
+
+        transactionManager.rollback(txStatus);
+
+        Assertions.assertThat(userDao.getCount()).isEqualTo(0);
     }
 
     private void checkUserAndLevel(User updated, String expectedId, Level expectedLevel) {

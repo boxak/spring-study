@@ -30,7 +30,7 @@ public class UserDaoJdbc implements UserDao {
         user.setLogin(rs.getInt("login"));
         user.setRecommend(rs.getInt("recommend"));
         user.setEmail(rs.getString("email"));
-
+//
         return user;
     };
 

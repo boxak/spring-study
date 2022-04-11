@@ -246,12 +246,13 @@ public class UserServiceTest {
 
     @Test
     public void transactionSync() {
+        DefaultTransactionDefinition txDefinition = new DefaultTransactionDefinition();
+        txDefinition.setReadOnly(true);
+
+        TransactionStatus txStatus = transactionManager.getTransaction(txDefinition);
 
         userDao.deleteAll();
         Assertions.assertThat(userDao.getCount()).isEqualTo(0);
-
-        DefaultTransactionDefinition txDefinition = new DefaultTransactionDefinition();
-        TransactionStatus txStatus = transactionManager.getTransaction(txDefinition);
 
         userService.add(users.get(0));
         userService.add(users.get(1));

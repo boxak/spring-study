@@ -21,6 +21,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.TransactionStatus;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.DefaultTransactionDefinition;
 import service.*;
 
@@ -246,21 +247,11 @@ public class UserServiceTest {
 
     //롤백 테스트
     @Test
+    @Transactional
     public void transactionSync() {
-        DefaultTransactionDefinition txDefinition = new DefaultTransactionDefinition();
-        TransactionStatus txStatus = transactionManager.getTransaction(txDefinition);
-
-        try {
-            userService.deleteAll();
-            userService.add(users.get(0));
-            userService.add(users.get(1));
-        } finally {
-            transactionManager.rollback(txStatus);
-        }
-
-        transactionManager.rollback(txStatus);
-
-        Assertions.assertThat(userDao.getCount()).isEqualTo(0);
+        userService.deleteAll();
+        userService.add(users.get(0));
+        userService.add(users.get(1));
     }
 
     private void checkUserAndLevel(User updated, String expectedId, Level expectedLevel) {

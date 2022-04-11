@@ -244,19 +244,19 @@ public class UserServiceTest {
         testUserService.getAll();
     }
 
+    //롤백 테스트
     @Test
     public void transactionSync() {
         DefaultTransactionDefinition txDefinition = new DefaultTransactionDefinition();
-        txDefinition.setReadOnly(true);
-
         TransactionStatus txStatus = transactionManager.getTransaction(txDefinition);
 
-        userDao.deleteAll();
-        Assertions.assertThat(userDao.getCount()).isEqualTo(0);
-
-        userService.add(users.get(0));
-        userService.add(users.get(1));
-        Assertions.assertThat(userDao.getCount()).isEqualTo(2);
+        try {
+            userService.deleteAll();
+            userService.add(users.get(0));
+            userService.add(users.get(1));
+        } finally {
+            transactionManager.rollback(txStatus);
+        }
 
         transactionManager.rollback(txStatus);
 

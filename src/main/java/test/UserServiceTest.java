@@ -21,9 +21,7 @@ import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.PlatformTransactionManager;
-import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.transaction.support.DefaultTransactionDefinition;
 import service.*;
 
 import java.util.ArrayList;
@@ -36,6 +34,8 @@ import static service.UserLevelUpgradePolicyImpl.MIN_RECCOMEND_FOR_GOLD;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = "/test-applicationContext.xml")
+@Transactional
+@Rollback
 public class UserServiceTest {
 
     @Autowired
@@ -248,8 +248,6 @@ public class UserServiceTest {
 
     //롤백 테스트
     @Test
-    @Transactional
-    @Rollback(false)
     public void transactionSync() {
         userService.deleteAll();
         userService.add(users.get(0));

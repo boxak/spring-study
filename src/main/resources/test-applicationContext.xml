@@ -2,9 +2,11 @@
 <beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xmlns:aop="http://www.springframework.org/schema/aop"
+       xmlns:context="http://www.springframework.org/schema/context"
        xmlns:tx="http://www.springframework.org/schema/tx"
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
                            http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd
+                           http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.0.xsd
                            http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd">
     <bean id="dataSource"
           class="org.springframework.jdbc.datasource.SimpleDriverDataSource">
@@ -18,6 +20,7 @@
         <property name="sqlService" ref="sqlService" />
     </bean>
     <bean id="sqlService" class="dao.service.XmlSqlService">
+        <property name="sqlmapFile" value="/sqlmap.xml" />
     </bean>
     <bean id="UserLevelUpgradePolicy" class="service.UserLevelUpgradePolicyImpl" />
     <bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
@@ -35,4 +38,5 @@
     <!-- 스태틱 멤버 클래스는 $로 지정한다, parent를 쓰면 해당 빈의 설정을 상속받는다. -->
     <bean id="testUserService" class="test.UserServiceTest$TestUserServiceImpl" parent="userService" />
     <tx:annotation-driven />
+    <context:annotation-config />
 </beans>

@@ -19,10 +19,16 @@
         <property name="dataSource" ref="dataSource" />
         <property name="sqlService" ref="sqlService" />
     </bean>
-    <bean id="sqlService" class="dao.service.XmlSqlService">
-        <property name="sqlmapFile" value="/sqlmap.xml" />
-        <property name="sqlReader" ref="sqlService" />
-        <property name="sqlRegistry" ref="sqlService" />
+
+    <bean id="sqlReader" class="dao.service.JaxbXmlSqlReader">
+        <property name="sqlmapFile" value="/sqlmap.xml"/>
+    </bean>
+    <bean id="sqlRegistry" class="dao.service.HashMapSqlRegistry">
+    </bean>
+
+    <bean id="sqlService" class="dao.service.BaseSqlService">
+        <property name="sqlReader" ref="sqlReader" />
+        <property name="sqlRegistry" ref="sqlRegistry" />
     </bean>
     <bean id="UserLevelUpgradePolicy" class="service.UserLevelUpgradePolicyImpl" />
     <bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">

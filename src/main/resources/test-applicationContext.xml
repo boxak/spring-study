@@ -28,7 +28,7 @@
         <property name="contextPath" value="dao.service.jaxb" />
     </bean>
     <bean id="sqlService" class="dao.service.OxmlSqlService">
-        <property name="sqlRegistry" ref="sqlRegistry" />
+        <property name="sqlmap" value="classpath:/sqlmap.xml" />
         <property name="unmarshaller" ref="unmashaller" />
     </bean>
     <bean id="UserLevelUpgradePolicy" class="service.UserLevelUpgradePolicyImpl" />

@@ -21,6 +21,8 @@
     </bean>
     <bean id="sqlService" class="dao.service.XmlSqlService">
         <property name="sqlmapFile" value="/sqlmap.xml" />
+        <property name="sqlReader" ref="sqlService" />
+        <property name="sqlRegistry" ref="sqlService" />
     </bean>
     <bean id="UserLevelUpgradePolicy" class="service.UserLevelUpgradePolicyImpl" />
     <bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">

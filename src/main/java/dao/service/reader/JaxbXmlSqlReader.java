@@ -1,5 +1,6 @@
-package dao.service;
+package dao.service.reader;
 
+import dao.service.registry.SqlRegistry;
 import dao.service.jaxb.SqlType;
 import dao.service.jaxb.Sqlmap;
 

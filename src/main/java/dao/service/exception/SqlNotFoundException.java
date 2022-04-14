@@ -1,4 +1,4 @@
-package dao.service;
+package dao.service.exception;
 
 public class SqlNotFoundException extends SqlRetrievalFailureException {
     public SqlNotFoundException(String message) {

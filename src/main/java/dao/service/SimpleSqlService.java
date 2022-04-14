@@ -1,5 +1,7 @@
 package dao.service;
 
+import dao.service.exception.SqlRetrievalFailureException;
+
 import java.util.Map;
 
 public class SimpleSqlService implements SqlService {

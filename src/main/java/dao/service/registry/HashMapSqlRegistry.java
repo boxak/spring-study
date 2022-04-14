@@ -1,4 +1,6 @@
-package dao.service;
+package dao.service.registry;
+
+import dao.service.exception.SqlNotFoundException;
 
 import java.util.HashMap;
 import java.util.Map;

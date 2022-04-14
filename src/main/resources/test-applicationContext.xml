@@ -20,15 +20,16 @@
         <property name="sqlService" ref="sqlService" />
     </bean>
 
-    <bean id="sqlReader" class="dao.service.JaxbXmlSqlReader">
+    <bean id="sqlReader" class="dao.service.reader.JaxbXmlSqlReader">
         <property name="sqlmapFile" value="/sqlmap.xml"/>
     </bean>
-    <bean id="sqlRegistry" class="dao.service.HashMapSqlRegistry" />
+    <bean id="sqlRegistry" class="dao.service.registry.ConcurrentHashMapSqlRegistry" />
     <bean id="unmashaller" class="org.springframework.oxm.jaxb.Jaxb2Marshaller">
         <property name="contextPath" value="dao.service.jaxb" />
     </bean>
     <bean id="sqlService" class="dao.service.OxmlSqlService">
         <property name="sqlmap" value="classpath:/sqlmap.xml" />
+        <property name="sqlRegistry" ref="sqlRegistry" />
         <property name="unmarshaller" ref="unmashaller" />
     </bean>
     <bean id="UserLevelUpgradePolicy" class="service.UserLevelUpgradePolicyImpl" />

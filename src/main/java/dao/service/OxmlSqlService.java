@@ -1,8 +1,12 @@
 package dao.service;
 
 import dao.UserDao;
+import dao.service.exception.SqlRetrievalFailureException;
 import dao.service.jaxb.SqlType;
 import dao.service.jaxb.Sqlmap;
+import dao.service.reader.SqlReader;
+import dao.service.registry.HashMapSqlRegistry;
+import dao.service.registry.SqlRegistry;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 import org.springframework.oxm.Unmarshaller;

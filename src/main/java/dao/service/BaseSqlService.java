@@ -1,5 +1,10 @@
 package dao.service;
 
+import dao.service.exception.SqlNotFoundException;
+import dao.service.exception.SqlRetrievalFailureException;
+import dao.service.reader.SqlReader;
+import dao.service.registry.SqlRegistry;
+
 import javax.annotation.PostConstruct;
 
 public class BaseSqlService implements SqlService {

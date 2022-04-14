@@ -1,4 +1,4 @@
-package dao.service;
+package dao.service.exception;
 
 public class SqlRetrievalFailureException extends RuntimeException {
     public SqlRetrievalFailureException(String message) {

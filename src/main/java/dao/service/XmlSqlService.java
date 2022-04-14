@@ -1,7 +1,11 @@
 package dao.service;
 
+import dao.service.exception.SqlNotFoundException;
+import dao.service.exception.SqlRetrievalFailureException;
 import dao.service.jaxb.SqlType;
 import dao.service.jaxb.Sqlmap;
+import dao.service.reader.SqlReader;
+import dao.service.registry.SqlRegistry;
 
 import javax.annotation.PostConstruct;
 import javax.xml.bind.JAXBContext;

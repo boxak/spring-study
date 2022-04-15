@@ -27,7 +27,9 @@
     <bean id="sqlReader" class="dao.service.reader.JaxbXmlSqlReader">
         <property name="sqlmapFile" value="/sqlmap.xml"/>
     </bean>
-    <bean id="sqlRegistry" class="dao.service.registry.ConcurrentHashMapSqlRegistry" />
+    <bean id="sqlRegistry" class="dao.service.registry.EmbeddedDbSqlRegistry">
+        <property name="dataSource" ref="embeddedDatabase" />
+    </bean>
     <bean id="unmashaller" class="org.springframework.oxm.jaxb.Jaxb2Marshaller">
         <property name="contextPath" value="dao.service.jaxb" />
     </bean>

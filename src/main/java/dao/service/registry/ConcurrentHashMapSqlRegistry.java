@@ -34,7 +34,7 @@ public class ConcurrentHashMapSqlRegistry implements UpdatableSqlRegistry {
 
     @Override
     public void updateSql(Map<String, String> sqlmap) throws SqlUpdateFailureException {
-        for (Map.Entry<String, String> entry : sqlMap.entrySet()) {
+        for (Map.Entry<String, String> entry : sqlmap.entrySet()) {
             updateSql(entry.getKey(), entry.getValue());
         }
     }
